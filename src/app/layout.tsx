@@ -14,13 +14,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "오픈 예정",
-  description: "서비스 준비 중입니다.",
+  description: "서비스를 제공하기 위해 준비 중입니다.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="ko">
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 antialiased font-sans">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col bg-slate-950 text-slate-100 antialiased font-sans`}
+      >
         {children}
       </body>
     </html>

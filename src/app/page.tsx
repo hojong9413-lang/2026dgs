@@ -16,13 +16,8 @@ export default function ComingSoonPage() {
         </h1>
 
         <p className="text-slate-400 text-sm sm:text-base leading-relaxed break-keep">
-          더 나은 서비스를 제공하기 위해 준비 중입니다.<br />
-          빠른 시일 내에 찾아뵙겠습니다.
+          서비스를 제공하기 위해 준비 중입니다.
         </p>
-
-        <div className="pt-4 border-t border-slate-800/80 text-xs text-slate-500">
-          © 2026. All rights reserved.
-        </div>
       </div>
     </main>
   );
