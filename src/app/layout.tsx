@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "오픈 예정",
-  description: "서비스를 제공하기 위해 준비 중입니다.",
+  title: "2026dgs 과업 자료실 및 문서 공유 플랫폼",
+  description: "대한민국 구석구석 이용자 심층조사(FGI) 과업 자료 및 옵시디언 연계 문서 플랫폼",
 };
 
 export default function RootLayout({
