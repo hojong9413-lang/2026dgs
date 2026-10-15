@@ -63,7 +63,7 @@ export default function ObsidianWebPlatform() {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loadingTree, setLoadingTree] = useState<boolean>(true);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set(["00_과업개요", "03_회의록", "04_보고서파일"])
+    new Set(["00_과업개요", "02_주요진행상황", "03_회의록", "04_보고서파일", "50_FGI"])
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -161,14 +161,12 @@ export default function ObsidianWebPlatform() {
 
   // 좌측 파일 탐색기에서 파일 클릭 시 열기
   const handleOpenFile = (node: FileNode) => {
-    // 이미 열려 있는 탭이 있다면 해당 탭으로 전환
     const existing = tabs.find((t) => t.path === node.path);
     if (existing) {
       setActiveTabId(existing.id);
       return;
     }
 
-    // 현재 탭이 빈 탭인 경우 현재 탭을 해당 파일로 교체
     if (tabs.length === 1 && !tabs[0].path) {
       const updatedTab: TabItem = {
         id: tabs[0].id,
@@ -183,7 +181,6 @@ export default function ObsidianWebPlatform() {
       return;
     }
 
-    // 새 탭 생성
     const newTab: TabItem = {
       id: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       name: node.name,
@@ -196,20 +193,38 @@ export default function ObsidianWebPlatform() {
     setActiveTabId(newTab.id);
   };
 
-  // ★ 내부 위키링크 클릭 시: 새 탭이 아니라 [현재 활성 창(자체 창)]에서 바로 이동!
+  // ★ 내부 링크 클릭 시: 새 창이 아니라 [현재 활성 창(자체 창)]에서 바로 이동!
   const handleOpenByLinkName = (linkText: string) => {
-    const cleanTarget = linkText.split("#")[0].trim().toLowerCase();
+    let cleanTarget = linkText.split("#")[0].trim().toLowerCase();
     if (!cleanTarget) return;
 
-    // 일치하는 파일 찾기
+    // 만약 폴더 링크(끝에 /)인 경우 사이드바에서 해당 폴더 열기
+    if (cleanTarget.endsWith("/")) {
+      const folderTarget = cleanTarget.slice(0, -1);
+      setExpandedFolders((prev) => new Set([...prev, folderTarget]));
+      return;
+    }
+
+    // 파일명만 추출
+    const targetBaseName = cleanTarget.split("/").pop() || cleanTarget;
+    const targetBaseNameWithoutExt = targetBaseName.replace(/\.[^/.]+$/, "");
+
+    // 일치하는 파일 찾기 (전체 경로, 파일명, 확장자 제외 파일명 전방위 대조)
     const match = allFilesList.find((f) => {
-      const baseNameWithoutExt = f.name.replace(/\.[^/.]+$/, "").toLowerCase();
-      const fullName = f.name.toLowerCase();
-      return baseNameWithoutExt === cleanTarget || fullName === cleanTarget;
+      const fPathLower = f.path.toLowerCase();
+      const fNameLower = f.name.toLowerCase();
+      const fBaseWithoutExt = f.name.replace(/\.[^/.]+$/, "").toLowerCase();
+
+      if (fPathLower === cleanTarget) return true;
+      if (fPathLower.replace(/\.[^/.]+$/, "") === cleanTarget) return true;
+      if (fNameLower === targetBaseName) return true;
+      if (fBaseWithoutExt === targetBaseNameWithoutExt) return true;
+
+      return false;
     });
 
     if (match) {
-      // 현재 열려 있는 탭 자체에서 문서 교체 및 히스토리 추가
+      // 현재 열려 있는 탭 자체에서 문서 내용 즉시 교체 및 히스토리 기록
       setTabs((prevTabs) =>
         prevTabs.map((tab) => {
           if (tab.id === activeTabId) {
@@ -434,16 +449,16 @@ export default function ObsidianWebPlatform() {
   const currentDetail = activeTab && activeTab.path ? fileData[activeTab.path] : null;
 
   // 마크다운 위키링크 [[노트명|별칭]] 또는 [[노트명]] 전처리
+  // 안전하게 표준 해시 규격인 #vault-internal- 링크로 변환하여 sanitization 방지
   const processedMarkdown = useMemo(() => {
     if (!currentDetail?.content) return "";
     return currentDetail.content.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, (match, note, alias) => {
       const displayText = alias ? alias.trim() : note.trim();
       const targetNote = encodeURIComponent(note.trim());
-      return `[${displayText}](obsidian://${targetNote})`;
+      return `[${displayText}](#vault-internal-${targetNote})`;
     });
   }, [currentDetail?.content]);
 
-  // 뒤로가기 / 앞으로가기 가능 여부
   const canGoBack = activeTab && activeTab.historyIndex > 0;
   const canGoForward = activeTab && activeTab.historyIndex < activeTab.history.length - 1;
 
@@ -571,7 +586,6 @@ export default function ObsidianWebPlatform() {
         {/* 탭 네비게이션 서브바 (뒤로가기, 앞으로가기, 경로, 다운로드) */}
         <div className="h-9 border-b border-[#e3e3e6] bg-white px-3 flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-1.5 truncate">
-            {/* 뒤로가기 버튼 */}
             <button
               onClick={handleGoBack}
               disabled={!canGoBack}
@@ -585,7 +599,6 @@ export default function ObsidianWebPlatform() {
               <ArrowLeft className="w-3.5 h-3.5" />
             </button>
 
-            {/* 앞으로가기 버튼 */}
             <button
               onClick={handleGoForward}
               disabled={!canGoForward}
@@ -664,6 +677,7 @@ export default function ObsidianWebPlatform() {
               <article className="prose prose-slate max-w-none text-[15px] leading-relaxed">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  urlTransform={(url) => url}
                   components={{
                     h1: ({ node, ...props }) => (
                       <h1
@@ -724,10 +738,11 @@ export default function ObsidianWebPlatform() {
                         {children}
                       </code>
                     ),
-                    // 내부 링크는 [현재 창(자체 창)]에서 바로 이동 / 외부는 새 탭
+                    // 내부 링크는 [현재 창(자체 창)]에서 바로 이동 / 순수 외부는 새 탭
                     a: ({ node, href, children, ...props }) => {
-                      if (href && href.startsWith("obsidian://")) {
-                        const target = decodeURIComponent(href.replace("obsidian://", ""));
+                      // 1. 내부 위키링크 프리픽스 (#vault-internal-)
+                      if (href && href.startsWith("#vault-internal-")) {
+                        const target = decodeURIComponent(href.replace("#vault-internal-", ""));
                         return (
                           <span
                             onClick={(e) => {
@@ -742,6 +757,30 @@ export default function ObsidianWebPlatform() {
                           </span>
                         );
                       }
+
+                      // 2. 상대 경로 파일 링크 (http/https/mailto 가 아닌 일반 로컬 링크)
+                      if (
+                        href &&
+                        !href.startsWith("http://") &&
+                        !href.startsWith("https://") &&
+                        !href.startsWith("mailto:")
+                      ) {
+                        return (
+                          <span
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleOpenByLinkName(href);
+                            }}
+                            className="text-sky-600 underline font-medium cursor-pointer hover:text-sky-800 transition-colors bg-sky-50/70 hover:bg-sky-100 px-1.5 py-0.5 rounded inline-flex items-center gap-1"
+                            title={`현재 창에서 열기: ${href}`}
+                          >
+                            <LinkIcon className="w-3 h-3 text-sky-500 inline" />
+                            <span>{children}</span>
+                          </span>
+                        );
+                      }
+
+                      // 3. 순수 외부 웹 링크 (https://...)만 새 브라우저 탭
                       return (
                         <a
                           href={href}
