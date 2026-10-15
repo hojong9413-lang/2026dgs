@@ -12,6 +12,8 @@ export interface CalendarEvent {
   tags?: string[];
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("dgs_access_token");
