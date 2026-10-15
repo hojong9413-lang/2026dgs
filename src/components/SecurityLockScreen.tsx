@@ -67,8 +67,7 @@ export default function SecurityLockScreen({ onSuccess }: SecurityLockScreenProp
               2026DGS 과업 자료실
             </h1>
             <p className="text-xs text-slate-400 leading-relaxed break-keep pt-0.5">
-              대한민국구석구석 이용자 심층조사(FGI) 비공개 플랫폼입니다.<br />
-              인가된 연구진 및 관계자만 패스워드를 입력하여 접근하십시오.
+              FGI과업 비공개 플랫폼입니다. 승인된 관계자/연구진만 접근하십시오.
             </p>
           </div>
         </div>
