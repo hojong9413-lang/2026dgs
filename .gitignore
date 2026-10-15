@@ -43,4 +43,6 @@ next-env.d.ts
 # obsidian workspace & runtime cache
 vault/.obsidian/workspace*.json
 vault/.obsidian/cache
+vault/.obsidian/plugins/
+
 
