@@ -27,6 +27,11 @@ const MIME_TYPES: Record<string, string> = {
 
 export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get("dgs_access_token");
+    if (token?.value !== "authenticated_user") {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const filePathParam = searchParams.get("path");
     const isDownload = searchParams.get("download") === "true";

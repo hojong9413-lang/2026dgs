@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -22,7 +22,10 @@ import {
   HardDrive,
   ExternalLink,
   Link as LinkIcon,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
+import SecurityLockScreen from "./SecurityLockScreen";
 
 interface FileNode {
   name: string;
@@ -60,6 +63,9 @@ interface FileDetail {
 }
 
 export default function ObsidianWebPlatform() {
+  // 인증 상태 관리 (null: 초기 확인 중, false: 잠금 화면, true: 플랫폼 접근 허용)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loadingTree, setLoadingTree] = useState<boolean>(true);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
@@ -89,23 +95,68 @@ export default function ObsidianWebPlatform() {
   const [fileData, setFileData] = useState<Record<string, FileDetail>>({});
   const [loadingFile, setLoadingFile] = useState<boolean>(false);
 
-  // 트리 로드
+  // 1. 초기 인증 상태 확인
   useEffect(() => {
-    async function loadTree() {
+    async function checkAuth() {
       try {
-        const res = await fetch("/api/vault/tree");
+        const res = await fetch("/api/auth/check");
         const json = await res.json();
-        if (json.success && json.tree) {
-          setTree(json.tree);
-        }
+        setIsAuthenticated(Boolean(json.authenticated));
       } catch (err) {
-        console.error("Failed to load vault tree", err);
-      } finally {
-        setLoadingTree(false);
+        setIsAuthenticated(false);
       }
     }
-    loadTree();
+    checkAuth();
   }, []);
+
+  // 2. 트리 로드 함수 (인증 성공 시 호출)
+  const loadTree = useCallback(async () => {
+    setLoadingTree(true);
+    try {
+      const res = await fetch("/api/vault/tree");
+      if (res.status === 401) {
+        setIsAuthenticated(false);
+        return;
+      }
+      const json = await res.json();
+      if (json.success && json.tree) {
+        setTree(json.tree);
+      }
+    } catch (err) {
+      console.error("Failed to load vault tree", err);
+    } finally {
+      setLoadingTree(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadTree();
+    }
+  }, [isAuthenticated, loadTree]);
+
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    if (!confirm("보안 세션을 종료하고 로그아웃하시겠습니까?")) return;
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setIsAuthenticated(false);
+      setTree([]);
+      setTabs([
+        {
+          id: "tab-home",
+          name: "새 탭",
+          path: "",
+          ext: "",
+          history: [{ name: "새 탭", path: "", ext: "" }],
+          historyIndex: 0,
+        },
+      ]);
+      setActiveTabId("tab-home");
+    } catch (err) {
+      console.error("Logout error", err);
+    }
+  };
 
   // 사이드바 너비 마우스 드래그 리사이징 이벤트 등록
   useEffect(() => {
@@ -158,6 +209,7 @@ export default function ObsidianWebPlatform() {
 
   // 활성 탭 파일 내용 로드
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (!activeTab || !activeTab.path) return;
     if (fileData[activeTab.path]) return;
 
@@ -165,6 +217,10 @@ export default function ObsidianWebPlatform() {
       setLoadingFile(true);
       try {
         const res = await fetch(`/api/vault/file?path=${encodeURIComponent(filePath)}`);
+        if (res.status === 401) {
+          setIsAuthenticated(false);
+          return;
+        }
         const json = await res.json();
         if (json.success && json.file) {
           setFileData((prev) => ({ ...prev, [filePath]: json.file }));
@@ -177,7 +233,7 @@ export default function ObsidianWebPlatform() {
     }
 
     loadFileContent(activeTab.path);
-  }, [activeTab, fileData]);
+  }, [activeTab, fileData, isAuthenticated]);
 
   // 폴더 토글
   const toggleFolder = (folderPath: string) => {
@@ -490,11 +546,28 @@ export default function ObsidianWebPlatform() {
   const canGoBack = activeTab && activeTab.historyIndex > 0;
   const canGoForward = activeTab && activeTab.historyIndex < activeTab.history.length - 1;
 
+  // =========================================================
+  // 보안 가드: 인증 상태 확인 중 또는 미인증 시 분기
+  // =========================================================
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-slate-950 text-slate-300 font-sans">
+        <span className="inline-block w-8 h-8 border-3 border-sky-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="text-xs tracking-wider text-slate-400">보안 자격증명 확인 중...</span>
+      </div>
+    );
+  }
+
+  if (isAuthenticated === false) {
+    return <SecurityLockScreen onSuccess={() => setIsAuthenticated(true)} />;
+  }
+
+  // =========================================================
+  // 본문 인터페이스 (인증 통과 시)
+  // =========================================================
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none">
-      {/* ========================================================= */}
-      {/* 1. 좌측 파일 탐색기 사이드바 (가로 너비 마우스 드래그 조절 지원) */}
-      {/* ========================================================= */}
+      {/* 1. 좌측 파일 탐색기 사이드바 */}
       {isSidebarOpen && (
         <>
           <aside
@@ -508,7 +581,7 @@ export default function ObsidianWebPlatform() {
                     2026DGS 보관함
                   </span>
                   <span className="text-[10px] bg-slate-200/80 text-slate-600 px-1.5 py-0.5 rounded font-mono">
-                    읽기전용
+                    보안인가됨
                   </span>
                 </div>
                 <button
@@ -565,7 +638,7 @@ export default function ObsidianWebPlatform() {
             </div>
           </aside>
 
-          {/* ★ 좌우 경계선 마우스 드래그 리사이저 핸들 ★ */}
+          {/* 좌우 경계선 마우스 드래그 리사이저 핸들 */}
           <div
             onMouseDown={() => setIsResizing(true)}
             className={`w-1 -ml-0.5 cursor-col-resize z-20 hover:bg-sky-400 transition-colors select-none ${
@@ -576,9 +649,7 @@ export default function ObsidianWebPlatform() {
         </>
       )}
 
-      {/* ========================================================= */}
       {/* 2. 우측 메인 작업 영역 */}
-      {/* ========================================================= */}
       <section className="flex-1 flex flex-col min-w-0 bg-white">
         {/* 상단 탭 바 */}
         <div className="h-10 bg-[#ededf0] border-b border-[#e3e3e6] flex items-center px-1 gap-1 overflow-x-auto select-none">
@@ -625,7 +696,7 @@ export default function ObsidianWebPlatform() {
           </button>
         </div>
 
-        {/* 탭 네비게이션 서브바 (뒤로가기, 앞으로가기, 경로, 다운로드) */}
+        {/* 탭 네비게이션 서브바 (뒤로가기, 앞으로가기, 경로, 다운로드, 로그아웃) */}
         <div className="h-9 border-b border-[#e3e3e6] bg-white px-3 flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-1.5 truncate">
             <button
@@ -662,8 +733,8 @@ export default function ObsidianWebPlatform() {
             </span>
           </div>
 
-          {activeTab && activeTab.path && (
-            <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            {activeTab && activeTab.path && (
               <a
                 href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
                 download
@@ -672,8 +743,18 @@ export default function ObsidianWebPlatform() {
                 <Download className="w-3.5 h-3.5 text-slate-600" />
                 <span>원본 다운로드</span>
               </a>
-            </div>
-          )}
+            )}
+
+            {/* 보안 로그아웃 버튼 */}
+            <button
+              onClick={handleLogout}
+              title="보안 로그아웃"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors text-xs"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>로그아웃</span>
+            </button>
+          </div>
         </div>
 
         {/* 본문 콘텐츠 렌더링 영역 */}
@@ -817,7 +898,6 @@ export default function ObsidianWebPlatform() {
                         {children}
                       </code>
                     ),
-                    // 내부 링크는 [현재 창(자체 창)]에서 바로 이동 / 순수 외부는 새 탭
                     a: ({ node, href, children, ...props }) => {
                       if (href && href.startsWith("#vault-internal-")) {
                         const target = decodeURIComponent(href.replace("#vault-internal-", ""));

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
@@ -61,8 +61,12 @@ function scanVault(dirPath: string, relativePath: string = ""): FileNode[] {
   });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get("dgs_access_token");
+    if (token?.value !== "authenticated_user") {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
     const vaultPath = path.join(process.cwd(), "vault");
     if (!fs.existsSync(vaultPath)) {
       return NextResponse.json({ error: "Vault directory not found" }, { status: 404 });
