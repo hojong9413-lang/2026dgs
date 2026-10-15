@@ -8,11 +8,8 @@ import {
   ChevronDown,
   FileText,
   Folder,
-  FolderOpen,
   X,
   Plus,
-  ArrowLeft,
-  ArrowRight,
   Download,
   Search,
   Sidebar,
@@ -21,10 +18,8 @@ import {
   FileSpreadsheet,
   File as FileIcon,
   HardDrive,
-  Eye,
-  FileCheck,
   ExternalLink,
-  ShieldAlert,
+  Link as LinkIcon,
 } from "lucide-react";
 
 interface FileNode {
@@ -57,7 +52,9 @@ interface FileDetail {
 export default function ObsidianWebPlatform() {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loadingTree, setLoadingTree] = useState<boolean>(true);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["00_과업개요", "03_회의록", "04_보고서파일"]));
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(["00_과업개요", "03_회의록", "04_보고서파일"])
+  );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
@@ -72,11 +69,11 @@ export default function ObsidianWebPlatform() {
   ]);
   const [activeTabId, setActiveTabId] = useState<string>("tab-home");
 
-  // 현재 열린 파일 데이터
+  // 파일 캐시
   const [fileData, setFileData] = useState<Record<string, FileDetail>>({});
   const [loadingFile, setLoadingFile] = useState<boolean>(false);
 
-  // 트리 데이터 로드
+  // 트리 로드
   useEffect(() => {
     async function loadTree() {
       try {
@@ -94,6 +91,22 @@ export default function ObsidianWebPlatform() {
     loadTree();
   }, []);
 
+  // 보관함 내 전수 파일 평탄화 (위키링크 [[...]] 검색용)
+  const allFilesList = useMemo(() => {
+    const list: FileNode[] = [];
+    function traverse(nodes: FileNode[]) {
+      for (const node of nodes) {
+        if (node.type === "file") {
+          list.push(node);
+        } else if (node.children) {
+          traverse(node.children);
+        }
+      }
+    }
+    traverse(tree);
+    return list;
+  }, [tree]);
+
   const activeTab = useMemo(() => {
     return tabs.find((t) => t.id === activeTabId) || tabs[0];
   }, [tabs, activeTabId]);
@@ -101,7 +114,7 @@ export default function ObsidianWebPlatform() {
   // 활성 탭 파일 내용 로드
   useEffect(() => {
     if (!activeTab || !activeTab.path) return;
-    if (fileData[activeTab.path]) return; // 이미 로드됨
+    if (fileData[activeTab.path]) return;
 
     async function loadFileContent(filePath: string) {
       setLoadingFile(true);
@@ -134,16 +147,14 @@ export default function ObsidianWebPlatform() {
     });
   };
 
-  // 파일 클릭 시 탭 열기
+  // 파일 열기 (탭 추가 또는 활성화)
   const handleOpenFile = (node: FileNode) => {
-    // 이미 열려 있는 탭이 있는지 확인
     const existing = tabs.find((t) => t.path === node.path);
     if (existing) {
       setActiveTabId(existing.id);
       return;
     }
 
-    // 만약 현재 탭이 '새 탭'(빈 탭) 하나뿐이라면 현재 탭을 교체
     if (tabs.length === 1 && !tabs[0].path) {
       const updatedTab: TabItem = {
         id: tabs[0].id,
@@ -156,7 +167,6 @@ export default function ObsidianWebPlatform() {
       return;
     }
 
-    // 새 탭 생성
     const newTab: TabItem = {
       id: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       name: node.name,
@@ -167,11 +177,29 @@ export default function ObsidianWebPlatform() {
     setActiveTabId(newTab.id);
   };
 
+  // 옵시디언 위키링크 클릭 시 대상 파일 자동 검색 및 탭 오픈
+  const handleOpenByLinkName = (linkText: string) => {
+    const cleanTarget = linkText.split("#")[0].trim().toLowerCase();
+    if (!cleanTarget) return;
+
+    // 1. 확장자 제거 파일명 또는 전체 파일명 일치 검색
+    const match = allFilesList.find((f) => {
+      const baseNameWithoutExt = f.name.replace(/\.[^/.]+$/, "").toLowerCase();
+      const fullName = f.name.toLowerCase();
+      return baseNameWithoutExt === cleanTarget || fullName === cleanTarget;
+    });
+
+    if (match) {
+      handleOpenFile(match);
+    } else {
+      alert(`[안내] 보관함에서 연결된 파일 '${linkText}'을(를) 찾을 수 없습니다.`);
+    }
+  };
+
   // 탭 닫기
   const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
     e.stopPropagation();
     if (tabs.length === 1) {
-      // 마지막 탭을 닫으면 빈 탭으로 리셋
       setTabs([{ id: "tab-home", name: "새 탭", path: "", ext: "" }]);
       setActiveTabId("tab-home");
       return;
@@ -184,7 +212,7 @@ export default function ObsidianWebPlatform() {
     }
   };
 
-  // 새 탭 추가
+  // 새 탭
   const handleAddTab = () => {
     const newTab: TabItem = {
       id: `tab-${Date.now()}`,
@@ -196,7 +224,7 @@ export default function ObsidianWebPlatform() {
     setActiveTabId(newTab.id);
   };
 
-  // 확장자 뱃지 렌더러
+  // 확장자 뱃지
   const renderBadge = (ext?: string) => {
     if (!ext) return null;
     const cleanExt = ext.replace(".", "").toUpperCase();
@@ -216,7 +244,6 @@ export default function ObsidianWebPlatform() {
     );
   };
 
-  // 파일 용량 포맷
   const formatBytes = (bytes?: number) => {
     if (!bytes) return "0 B";
     const k = 1024;
@@ -225,7 +252,7 @@ export default function ObsidianWebPlatform() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
-  // 재귀적 파일 트리 렌더러
+  // 트리 렌더러
   const renderTree = (nodes: FileNode[], depth = 0) => {
     return (
       <ul className={`space-y-0.5 ${depth > 0 ? "pl-3 border-l border-slate-200 ml-1.5" : ""}`}>
@@ -249,7 +276,6 @@ export default function ObsidianWebPlatform() {
             );
           }
 
-          // 파일 노드
           const isSelected = activeTab && activeTab.path === node.path;
           return (
             <li key={node.path} className="select-none">
@@ -284,7 +310,6 @@ export default function ObsidianWebPlatform() {
     );
   };
 
-  // 실시간 검색 필터링된 트리
   const filteredTree = useMemo(() => {
     if (!searchQuery.trim()) return tree;
 
@@ -308,17 +333,25 @@ export default function ObsidianWebPlatform() {
     return filterNodes(tree);
   }, [tree, searchQuery]);
 
-  // 활성 탭 파일
   const currentDetail = activeTab && activeTab.path ? fileData[activeTab.path] : null;
+
+  // 마크다운 위키링크 [[노트명|별칭]] 또는 [[노트명]] 전처리
+  const processedMarkdown = useMemo(() => {
+    if (!currentDetail?.content) return "";
+    return currentDetail.content.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, (match, note, alias) => {
+      const displayText = alias ? alias.trim() : note.trim();
+      const targetNote = encodeURIComponent(note.trim());
+      return `[${displayText}](obsidian://${targetNote})`;
+    });
+  }, [currentDetail?.content]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none">
       {/* ========================================================= */}
-      {/* 1. 좌측 파일 탐색기 사이드바 (옵시디언 사이드바 완벽 복제) */}
+      {/* 1. 좌측 파일 탐색기 사이드바 */}
       {/* ========================================================= */}
       {isSidebarOpen && (
         <aside className="w-72 border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0">
-          {/* 사이드바 상단 헤더 & 검색 */}
           <div className="p-3 border-b border-[#e3e3e6] space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
@@ -338,7 +371,6 @@ export default function ObsidianWebPlatform() {
               </button>
             </div>
 
-            {/* 검색창 */}
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
               <input
@@ -359,7 +391,6 @@ export default function ObsidianWebPlatform() {
             </div>
           </div>
 
-          {/* 파일 트리 스크롤 영역 */}
           <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
             {loadingTree ? (
               <div className="p-4 text-center text-xs text-slate-400">
@@ -374,7 +405,6 @@ export default function ObsidianWebPlatform() {
             )}
           </div>
 
-          {/* 좌측 사이드바 하단 상태바 (옵시디언 vault) */}
           <div className="h-8 border-t border-[#e3e3e6] px-3 flex items-center justify-between text-[11px] text-slate-500 bg-[#f7f7f8]">
             <div className="flex items-center gap-1.5 font-medium">
               <HardDrive className="w-3 h-3 text-slate-400" />
@@ -388,12 +418,11 @@ export default function ObsidianWebPlatform() {
       )}
 
       {/* ========================================================= */}
-      {/* 2. 우측 메인 작업 영역 (상단 탭 바 + 본문 렌더러) */}
+      {/* 2. 우측 메인 작업 영역 */}
       {/* ========================================================= */}
       <section className="flex-1 flex flex-col min-w-0 bg-white">
-        {/* 상단 탭 바 (옵시디언 탭 바 완벽 복제) */}
+        {/* 상단 탭 바 */}
         <div className="h-10 bg-[#ededf0] border-b border-[#e3e3e6] flex items-center px-1 gap-1 overflow-x-auto select-none">
-          {/* 사이드바 토글 버튼 */}
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             title="사이드바 열기/닫기"
@@ -402,7 +431,6 @@ export default function ObsidianWebPlatform() {
             <Sidebar className="w-4 h-4" />
           </button>
 
-          {/* 탭 목록 */}
           {tabs.map((tab) => {
             const isActive = tab.id === activeTabId;
             return (
@@ -429,7 +457,6 @@ export default function ObsidianWebPlatform() {
             );
           })}
 
-          {/* 새 탭 추가 버튼 */}
           <button
             onClick={handleAddTab}
             title="새 탭 열기"
@@ -439,7 +466,7 @@ export default function ObsidianWebPlatform() {
           </button>
         </div>
 
-        {/* 탭 네비게이션 서브바 (뒤로가기/경로/다운로드) */}
+        {/* 탭 네비게이션 서브바 */}
         <div className="h-9 border-b border-[#e3e3e6] bg-white px-4 flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-2 truncate">
             <span className="text-slate-400 font-mono text-[11px]">경로:</span>
@@ -464,11 +491,9 @@ export default function ObsidianWebPlatform() {
 
         {/* 본문 콘텐츠 렌더링 영역 */}
         <main className="flex-1 overflow-y-auto bg-white select-text">
-          {/* (1) 빈 탭 (새 탭) - 옵시디언 기본 화면 복제 */}
           {(!activeTab || !activeTab.path) && (
             <div className="h-full flex flex-col items-center justify-center p-6 text-center select-none">
               <div className="max-w-md w-full space-y-6">
-                {/* 보관함 로고 & 환영 안내 */}
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
                   <HardDrive className="w-8 h-8" />
                 </div>
@@ -481,29 +506,27 @@ export default function ObsidianWebPlatform() {
                   </p>
                 </div>
 
-                {/* 빠른 탐색 버튼들 (옵시디언 바로가기 스타일) */}
                 <div className="space-y-2 pt-2">
                   <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
                     <span className="text-slate-700 font-medium">좌측 탐색기에서 열람할 문서를 선택하십시오.</span>
                     <span className="text-[10px] text-slate-400 font-mono">클릭 즉시 열람</span>
                   </div>
                   <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
-                    <span className="text-slate-700 font-medium">회의록, 분석서, PDF, 실무 보고서 지원</span>
-                    <span className="text-[10px] text-slate-400 font-mono">읽기 전용</span>
+                    <span className="text-slate-700 font-medium">노트 속 [[내부링크]] 클릭 시 해당 문서 자동 이동</span>
+                    <span className="text-[10px] text-sky-600 font-mono">스마트 링크 연동</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* (2) 파일 로딩 상태 */}
           {activeTab && activeTab.path && loadingFile && (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
               문서를 불러오는 중입니다...
             </div>
           )}
 
-          {/* (3) 마크다운 문서 (.md) 열람 */}
+          {/* 마크다운 문서 (.md) 열람 */}
           {activeTab && activeTab.path && !loadingFile && currentDetail && currentDetail.isText && (
             <div className="max-w-4xl mx-auto px-8 py-10">
               <article className="prose prose-slate max-w-none text-[15px] leading-relaxed">
@@ -548,22 +571,51 @@ export default function ObsidianWebPlatform() {
                     td: ({ node, ...props }) => (
                       <td className="border border-slate-300 px-3 py-2 text-slate-700" {...props} />
                     ),
-                    code: ({ node, className, children, ...props }) => {
+                    code: ({ node, className, children, ...props }) => (
+                      <code className="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                        {children}
+                      </code>
+                    ),
+                    // 내부 위키링크 및 외부 링크 인터셉트
+                    a: ({ node, href, children, ...props }) => {
+                      if (href && href.startsWith("obsidian://")) {
+                        const target = decodeURIComponent(href.replace("obsidian://", ""));
+                        return (
+                          <span
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleOpenByLinkName(target);
+                            }}
+                            className="text-sky-600 underline font-medium cursor-pointer hover:text-sky-800 transition-colors bg-sky-50/70 hover:bg-sky-100 px-1.5 py-0.5 rounded inline-flex items-center gap-1"
+                            title={`옵시디언 노트 열기: ${target}`}
+                          >
+                            <LinkIcon className="w-3 h-3 text-sky-500 inline" />
+                            <span>{children}</span>
+                          </span>
+                        );
+                      }
                       return (
-                        <code className="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
-                          {children}
-                        </code>
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sky-600 underline font-medium hover:text-sky-800 inline-flex items-center gap-0.5"
+                          {...props}
+                        >
+                          <span>{children}</span>
+                          <ExternalLink className="w-3 h-3 inline text-slate-400" />
+                        </a>
                       );
                     },
                   }}
                 >
-                  {currentDetail.content || ""}
+                  {processedMarkdown}
                 </ReactMarkdown>
               </article>
             </div>
           )}
 
-          {/* (4) PDF 문서 인라인 전체화면 열람 */}
+          {/* PDF 문서 인라인 열람 */}
           {activeTab && activeTab.path && !loadingFile && activeTab.ext.toLowerCase() === ".pdf" && (
             <div className="h-full flex flex-col">
               <iframe
@@ -574,7 +626,7 @@ export default function ObsidianWebPlatform() {
             </div>
           )}
 
-          {/* (5) 대용량 음원/오디오 (.m4a, .mp3) 열람 */}
+          {/* 대용량 음원 (.m4a, .mp3) */}
           {activeTab && activeTab.path && !loadingFile && [".m4a", ".mp3", ".wav"].includes(activeTab.ext.toLowerCase()) && (
             <div className="h-full flex flex-col items-center justify-center p-8 text-center">
               <div className="max-w-md w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs">
@@ -608,7 +660,7 @@ export default function ObsidianWebPlatform() {
             </div>
           )}
 
-          {/* (6) 실무 첨부파일 다운로드 카드 (.xlsx, .pptx, .hwp, .docx 등) */}
+          {/* 실무 첨부파일 다운로드 카드 (.xlsx, .pptx, .hwp 등) */}
           {activeTab &&
             activeTab.path &&
             !loadingFile &&
