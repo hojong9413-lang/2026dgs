@@ -1069,6 +1069,18 @@ export default function ObsidianWebPlatform() {
           {/* 마크다운 문서 (.md) 열람 */}
           {activeTab && activeTab.path && !loadingFile && currentDetail && currentDetail.isText && (
             <div className="max-w-4xl mx-auto px-8 py-10">
+              {/* 메인 타이틀 (옵시디언 상단 타이틀) */}
+              {parsedMarkdown.extractedTitle && (
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-5 pb-1">
+                  {parsedMarkdown.extractedTitle}
+                </h1>
+              )}
+
+              {/* 옵시디언 표준 템플릿 속성 (Properties) 컴포넌트 */}
+              {parsedMarkdown.frontmatter && (
+                <ObsidianProperties properties={parsedMarkdown.frontmatter} />
+              )}
+
               <article className="prose prose-slate max-w-none text-[15px] leading-relaxed">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
@@ -1187,7 +1199,7 @@ export default function ObsidianWebPlatform() {
                     },
                   }}
                 >
-                  {processedMarkdown}
+                  {parsedMarkdown.body}
                 </ReactMarkdown>
               </article>
             </div>
