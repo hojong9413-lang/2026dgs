@@ -32,6 +32,7 @@ import {
   Bot,
 } from "lucide-react";
 import SecurityLockScreen from "./SecurityLockScreen";
+import ObsidianCalendarView from "./ObsidianCalendarView";
 
 interface FileNode {
   name: string;
@@ -425,6 +426,7 @@ export default function ObsidianWebPlatform() {
   useEffect(() => {
     if (!isAuthenticated) return;
     if (!activeTab || !activeTab.path) return;
+    if (activeTab.ext === "calendar") return;
     if (fileData[activeTab.path]) return;
 
     async function loadFileContent(filePath: string) {
@@ -547,6 +549,75 @@ export default function ObsidianWebPlatform() {
       );
     } else {
       alert(`[안내] 보관함에서 연결된 파일 '${linkText}'을(를) 찾을 수 없습니다.`);
+    }
+  };
+
+  // 과업 캘린더 (Obsidian Full Calendar) 탭 열기
+  const handleOpenCalendar = () => {
+    const existing = tabs.find((t) => t.ext === "calendar");
+    if (existing) {
+      setActiveTabId(existing.id);
+      return;
+    }
+
+    if (tabs.length === 1 && !tabs[0].path) {
+      const updatedTab: TabItem = {
+        id: tabs[0].id,
+        name: "과업 캘린더",
+        path: "calendar",
+        ext: "calendar",
+        history: [{ name: "과업 캘린더", path: "calendar", ext: "calendar" }],
+        historyIndex: 0,
+      };
+      setTabs([updatedTab]);
+      setActiveTabId(updatedTab.id);
+      return;
+    }
+
+    const newTab: TabItem = {
+      id: `tab-calendar-${Date.now()}`,
+      name: "과업 캘린더",
+      path: "calendar",
+      ext: "calendar",
+      history: [{ name: "과업 캘린더", path: "calendar", ext: "calendar" }],
+      historyIndex: 0,
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  // 캘린더 내 일정 클릭 시 해당 노트 열람
+  const handleOpenNoteFromCalendar = (notePath: string) => {
+    const targetBaseName = notePath.split("/").pop() || notePath;
+    const match = allFilesList.find((f) => {
+      const fPathLower = f.path.toLowerCase();
+      const fNameLower = f.name.toLowerCase();
+      return (
+        fPathLower === notePath.toLowerCase() ||
+        fNameLower === targetBaseName.toLowerCase() ||
+        fPathLower.endsWith(notePath.toLowerCase())
+      );
+    });
+
+    if (match) {
+      const existing = tabs.find((t) => t.path === match.path);
+      if (existing) {
+        setActiveTabId(existing.id);
+        return;
+      }
+
+      const newTab: TabItem = {
+        id: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        name: match.name,
+        path: match.path,
+        ext: match.extension || "",
+        history: [{ name: match.name, path: match.path, ext: match.extension || "" }],
+        historyIndex: 0,
+      };
+      setTabs((prev) => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    } else {
+      handleOpenByLinkName(notePath);
     }
   };
 
@@ -681,7 +752,20 @@ export default function ObsidianWebPlatform() {
                     {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                   </span>
                   <Folder className="w-4 h-4 text-amber-500/80 shrink-0" />
-                  <span className="truncate">{node.name}</span>
+                  <span className="truncate flex-1">{node.name}</span>
+                  {node.name.includes("01_과업일정") && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenCalendar();
+                      }}
+                      className="ml-auto text-[10px] font-bold text-[#705dcf] bg-purple-100 hover:bg-purple-200 px-1.5 py-0.5 rounded cursor-pointer transition-colors shadow-2xs flex items-center gap-0.5"
+                      title="옵시디언 과업 캘린더 뷰 열기"
+                    >
+                      <Calendar className="w-2.5 h-2.5" />
+                      <span>달력</span>
+                    </span>
+                  )}
                 </button>
                 {isExpanded && node.children && node.children.length > 0 && renderTree(node.children, depth + 1)}
               </li>
@@ -819,13 +903,23 @@ export default function ObsidianWebPlatform() {
                     보안인가됨
                   </span>
                 </div>
-                <button
-                  onClick={() => setExpandedFolders(new Set())}
-                  title="모든 폴더 접기"
-                  className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded transition-colors"
-                >
-                  <Folder className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleOpenCalendar}
+                    title="01_과업일정 캘린더 열기"
+                    className="p-1 text-[#705dcf] hover:text-[#553c9a] hover:bg-purple-100 rounded transition-colors flex items-center gap-1 text-[11px] font-semibold px-1.5 cursor-pointer"
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>캘린더</span>
+                  </button>
+                  <button
+                    onClick={() => setExpandedFolders(new Set())}
+                    title="모든 폴더 접기"
+                    className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded transition-colors cursor-pointer"
+                  >
+                    <Folder className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               <div className="relative">
@@ -908,6 +1002,9 @@ export default function ObsidianWebPlatform() {
                     : "bg-[#e5e5e8] text-slate-600 border-transparent hover:bg-[#e9e9ec] hover:text-slate-800"
                 }`}
               >
+                {tab.ext === "calendar" && (
+                  <Calendar className="w-3.5 h-3.5 text-[#705dcf] shrink-0" />
+                )}
                 <span className="max-w-[160px] truncate">
                   {tab.name.replace(/\.md$/, "")}
                 </span>
@@ -925,9 +1022,18 @@ export default function ObsidianWebPlatform() {
           <button
             onClick={handleAddTab}
             title="새 탭 열기"
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 rounded transition-colors ml-1"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 rounded transition-colors ml-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={handleOpenCalendar}
+            title="01_과업일정 캘린더 탭 열기"
+            className="p-1 text-[#705dcf] hover:text-[#553c9a] hover:bg-purple-100 rounded transition-colors ml-1 flex items-center gap-1 text-xs font-semibold px-2 cursor-pointer border border-purple-200/60 shadow-2xs"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">과업 캘린더</span>
           </button>
         </div>
 
@@ -964,12 +1070,16 @@ export default function ObsidianWebPlatform() {
 
             <span className="text-slate-400 font-mono text-[11px]">경로:</span>
             <span className="font-medium text-slate-800 truncate">
-              {activeTab && activeTab.path ? `vault / ${activeTab.path}` : "시작 화면"}
+              {activeTab && activeTab.ext === "calendar"
+                ? "vault / 01_과업일정 / Calendar (Obsidian Full Calendar 뷰)"
+                : activeTab && activeTab.path
+                ? `vault / ${activeTab.path}`
+                : "시작 화면"}
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {activeTab && activeTab.path && (
+            {activeTab && activeTab.path && activeTab.ext !== "calendar" && (
               <a
                 href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
                 download
@@ -1055,19 +1165,45 @@ export default function ObsidianWebPlatform() {
                       뷰어 / 다운로드
                     </span>
                   </div>
+
+                  <div
+                    onClick={handleOpenCalendar}
+                    className="border border-purple-200/90 rounded-xl p-4 sm:p-5 bg-gradient-to-r from-purple-50/80 to-indigo-50/80 hover:from-purple-100 hover:to-indigo-100 transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-purple-900 flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-[#705dcf]" />
+                        <span>01_과업일정 캘린더 (Obsidian Full Calendar)</span>
+                      </div>
+                      <div className="text-xs text-purple-700/80">
+                        총 62개 마일스톤 및 주요 마감일 월간 캘린더 뷰 연동, 클릭 시 해당 일정 노트 바로가기
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-[#705dcf] text-white shrink-0 ml-3 shadow-2xs group-hover:brightness-110 flex items-center gap-1">
+                      <span>캘린더 열기</span>
+                      <span>→</span>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {activeTab && activeTab.path && loadingFile && (
+          {/* 과업 캘린더 뷰 (Obsidian Full Calendar 복제) */}
+          {activeTab && activeTab.ext === "calendar" && (
+            <div className="h-full w-full flex flex-col overflow-hidden">
+              <ObsidianCalendarView onOpenNote={handleOpenNoteFromCalendar} />
+            </div>
+          )}
+
+          {activeTab && activeTab.path && activeTab.ext !== "calendar" && loadingFile && (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
               문서를 불러오는 중입니다...
             </div>
           )}
 
           {/* 마크다운 문서 (.md) 열람 */}
-          {activeTab && activeTab.path && !loadingFile && currentDetail && currentDetail.isText && (
+          {activeTab && activeTab.path && activeTab.ext !== "calendar" && !loadingFile && currentDetail && currentDetail.isText && (
             <div className="max-w-4xl mx-auto px-8 py-10">
               {/* 메인 타이틀 (옵시디언 상단 타이틀) */}
               {parsedMarkdown.extractedTitle && (
