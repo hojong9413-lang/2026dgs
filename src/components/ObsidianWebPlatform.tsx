@@ -24,6 +24,12 @@ import {
   Link as LinkIcon,
   LogOut,
   ShieldCheck,
+  Calendar,
+  Tag,
+  AlignLeft,
+  UserCheck,
+  Layers,
+  Bot,
 } from "lucide-react";
 import SecurityLockScreen from "./SecurityLockScreen";
 
@@ -60,6 +66,214 @@ interface FileDetail {
   updatedAt: string;
   isText: boolean;
   content: string | null;
+}
+
+interface ParsedMarkdownData {
+  frontmatter: Record<string, any> | null;
+  extractedTitle: string | null;
+  body: string;
+}
+
+// 옵시디언 표준 YAML Frontmatter(속성) 파서
+function parseObsidianMarkdown(rawContent: string): ParsedMarkdownData {
+  const content = rawContent || "";
+  let frontmatter: Record<string, any> | null = null;
+  let remainingBody = content;
+
+  // YAML Frontmatter 파싱 (^---\r?\n ... \r?\n---\r?\n)
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (frontmatterMatch) {
+    const rawYaml = frontmatterMatch[1];
+    remainingBody = content.slice(frontmatterMatch[0].length);
+    const data: Record<string, any> = {};
+    const lines = rawYaml.split(/\r?\n/);
+    let currentKey: string | null = null;
+    let currentList: string[] | null = null;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+
+      const listItemMatch = line.match(/^\s*-\s+(.*)$/);
+      if (listItemMatch && currentKey && currentList) {
+        currentList.push(listItemMatch[1].trim());
+        continue;
+      }
+
+      const colonIdx = line.indexOf(":");
+      if (colonIdx > 0) {
+        const key = line.slice(0, colonIdx).trim();
+        const rawVal = line.slice(colonIdx + 1).trim();
+
+        if (rawVal === "") {
+          currentKey = key;
+          currentList = [];
+          data[key] = currentList;
+        } else if (rawVal.startsWith("[") && rawVal.endsWith("]")) {
+          data[key] = rawVal
+            .slice(1, -1)
+            .split(",")
+            .map((s) => s.trim().replace(/^['"]|['"]$/g, ""))
+            .filter(Boolean);
+          currentKey = null;
+          currentList = null;
+        } else {
+          data[key] = rawVal.replace(/^['"]|['"]$/g, "");
+          currentKey = null;
+          currentList = null;
+        }
+      }
+    }
+    if (Object.keys(data).length > 0) {
+      frontmatter = data;
+    }
+  }
+
+  // 본문 최상단 H1(# 제목) 추출
+  let extractedTitle: string | null = null;
+  const titleMatch = remainingBody.match(/^\s*#\s+([^\r\n]+)/);
+  if (titleMatch) {
+    extractedTitle = titleMatch[1].trim();
+    // 상단 단독 제목은 별도 렌더링을 위해 본문 시작부에서 제거
+    remainingBody = remainingBody.replace(/^\s*#\s+[^\r\n]+(\r?\n)*/, "");
+  } else if (frontmatter?.title && typeof frontmatter.title === "string") {
+    extractedTitle = frontmatter.title;
+  }
+
+  return {
+    frontmatter,
+    extractedTitle,
+    body: remainingBody,
+  };
+}
+
+function getPropertyIcon(key: string) {
+  const lowerKey = key.toLowerCase();
+  if (
+    lowerKey.includes("일자") ||
+    lowerKey.includes("date") ||
+    lowerKey.includes("일시") ||
+    lowerKey.includes("기간")
+  ) {
+    return <Calendar className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (lowerKey === "tags" || lowerKey.includes("태그")) {
+    return <Tag className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (lowerKey.includes("출처") || lowerKey.includes("source")) {
+    return <FileText className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (lowerKey.includes("보안") || lowerKey.includes("security")) {
+    return <ShieldCheck className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (
+    lowerKey.includes("검수자") ||
+    lowerKey.includes("작성자") ||
+    lowerKey.includes("author") ||
+    lowerKey.includes("연구원")
+  ) {
+    return <UserCheck className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (lowerKey.includes("단계") || lowerKey.includes("status")) {
+    return <Layers className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  if (lowerKey.includes("ai") || lowerKey.includes("인공지능")) {
+    return <Bot className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+  }
+  return <AlignLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 shrink-0" />;
+}
+
+// 옵시디언 1.4+ 네이티브 속성(Properties) UI 컴포넌트
+function ObsidianProperties({ properties }: { properties: Record<string, any> }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const keys = Object.keys(properties).filter((k) => k !== "title");
+
+  if (keys.length === 0) return null;
+
+  return (
+    <div className="mb-6 select-text font-sans">
+      {/* 속성 토글 헤더 */}
+      <button
+        type="button"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 mb-2 cursor-pointer select-none transition-colors group"
+      >
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform duration-150 ${
+            isCollapsed ? "-rotate-90" : ""
+          }`}
+        />
+        <span>속성</span>
+        <span className="text-[10px] text-slate-400 font-normal">({keys.length})</span>
+      </button>
+
+      {/* 속성 목록 (옵시디언 1.4+ 표준 테이블형 레이아웃) */}
+      {!isCollapsed && (
+        <div className="space-y-0.5 pl-1">
+          {keys.map((key) => {
+            const val = properties[key];
+            const isTags =
+              key.toLowerCase() === "tags" ||
+              key.toLowerCase() === "태그" ||
+              Array.isArray(val);
+            const isDate =
+              key.toLowerCase().includes("일자") ||
+              key.toLowerCase().includes("date") ||
+              (typeof val === "string" && /^\d{4}-\d{2}-\d{2}/.test(val));
+
+            return (
+              <div
+                key={key}
+                className="flex flex-col sm:flex-row sm:items-baseline py-1 group hover:bg-slate-100/70 rounded px-2 -mx-2 transition-colors gap-1 sm:gap-6"
+              >
+                {/* 속성 이름 (좌측 열) */}
+                <div className="w-28 sm:w-32 shrink-0 flex items-center gap-2 text-slate-500 text-[13px] select-none font-medium">
+                  {getPropertyIcon(key)}
+                  <span className="truncate">{key}</span>
+                </div>
+
+                {/* 속성 값 (우측 열) */}
+                <div className="flex-1 text-[13px] text-slate-800 break-keep">
+                  {isTags && Array.isArray(val) ? (
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      {val.map((tag: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[12px] font-medium bg-[#f0ecfc] text-[#6b46c1] border border-[#e2d9f8] hover:bg-[#e9e1fa] transition-colors"
+                        >
+                          <span>{tag}</span>
+                          <span className="text-purple-400 text-[10px] select-none">✕</span>
+                        </span>
+                      ))}
+                    </div>
+                  ) : isDate ? (
+                    <span className="inline-flex items-center gap-1.5 text-slate-800 text-[13px] font-mono">
+                      <span>📅 {String(val)}</span>
+                    </span>
+                  ) : typeof val === "boolean" ? (
+                    <span className="font-mono text-xs text-slate-600">
+                      {val ? "True" : "False"}
+                    </span>
+                  ) : (
+                    <span className="text-slate-800 leading-relaxed">{String(val)}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* 속성 추가 행 (옵시디언 네이티브 룩앤필 재현) */}
+          <div className="pt-2 text-[12px] text-slate-400 flex items-center gap-1.5 select-none pl-1 cursor-default">
+            <Plus className="w-3.5 h-3.5 text-slate-400" />
+            <span>속성 추가</span>
+          </div>
+        </div>
+      )}
+
+      {/* 속성과 본문 사이의 미세 구분선 */}
+      <div className="border-b border-slate-200/70 mt-4 mb-6" />
+    </div>
+  );
 }
 
 export default function ObsidianWebPlatform() {
@@ -533,15 +747,36 @@ export default function ObsidianWebPlatform() {
 
   const currentDetail = activeTab && activeTab.path ? fileData[activeTab.path] : null;
 
-  // 마크다운 위키링크 [[노트명|별칭]] 또는 [[노트명]] 전처리
-  const processedMarkdown = useMemo(() => {
-    if (!currentDetail?.content) return "";
-    return currentDetail.content.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, (match, note, alias) => {
-      const displayText = alias ? alias.trim() : note.trim();
-      const targetNote = encodeURIComponent(note.trim());
-      return `[${displayText}](#vault-internal-${targetNote})`;
-    });
-  }, [currentDetail?.content]);
+  // 마크다운 파싱 (옵시디언 YAML Frontmatter 속성 분리 및 위키링크 [[노트명|별칭]] 전처리)
+  const parsedMarkdown = useMemo(() => {
+    if (!currentDetail?.content) {
+      return { frontmatter: null, extractedTitle: null, body: "" };
+    }
+    const parsed = parseObsidianMarkdown(currentDetail.content);
+
+    // 위키링크 치환
+    const processedBody = parsed.body.replace(
+      /\[\[(.*?)(?:\|(.*?))?\]\]/g,
+      (match, note, alias) => {
+        const displayText = alias ? alias.trim() : note.trim();
+        const targetNote = encodeURIComponent(note.trim());
+        return `[${displayText}](#vault-internal-${targetNote})`;
+      }
+    );
+
+    // 표시 타이틀 결정 (추출된 제목이 없으나 frontmatter가 있는 경우 파일명 활용)
+    const displayTitle =
+      parsed.extractedTitle ||
+      (parsed.frontmatter && activeTab?.name
+        ? activeTab.name.replace(/\.md$/, "")
+        : null);
+
+    return {
+      frontmatter: parsed.frontmatter,
+      extractedTitle: displayTitle,
+      body: processedBody,
+    };
+  }, [currentDetail?.content, activeTab?.name]);
 
   const canGoBack = activeTab && activeTab.historyIndex > 0;
   const canGoForward = activeTab && activeTab.historyIndex < activeTab.history.length - 1;
