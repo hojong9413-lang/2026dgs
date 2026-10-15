@@ -1,0 +1,650 @@
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import {
+  ChevronRight,
+  ChevronDown,
+  FileText,
+  Folder,
+  FolderOpen,
+  X,
+  Plus,
+  ArrowLeft,
+  ArrowRight,
+  Download,
+  Search,
+  Sidebar,
+  Music,
+  Video,
+  FileSpreadsheet,
+  File as FileIcon,
+  HardDrive,
+  Eye,
+  FileCheck,
+  ExternalLink,
+  ShieldAlert,
+} from "lucide-react";
+
+interface FileNode {
+  name: string;
+  path: string;
+  type: "directory" | "file";
+  extension?: string;
+  size?: number;
+  updatedAt?: string;
+  children?: FileNode[];
+}
+
+interface TabItem {
+  id: string;
+  name: string;
+  path: string;
+  ext: string;
+}
+
+interface FileDetail {
+  name: string;
+  path: string;
+  extension: string;
+  size: number;
+  updatedAt: string;
+  isText: boolean;
+  content: string | null;
+}
+
+export default function ObsidianWebPlatform() {
+  const [tree, setTree] = useState<FileNode[]>([]);
+  const [loadingTree, setLoadingTree] = useState<boolean>(true);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["00_과업개요", "03_회의록", "04_보고서파일"]));
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+
+  // 탭 관리
+  const [tabs, setTabs] = useState<TabItem[]>([
+    {
+      id: "tab-home",
+      name: "새 탭",
+      path: "",
+      ext: "",
+    },
+  ]);
+  const [activeTabId, setActiveTabId] = useState<string>("tab-home");
+
+  // 현재 열린 파일 데이터
+  const [fileData, setFileData] = useState<Record<string, FileDetail>>({});
+  const [loadingFile, setLoadingFile] = useState<boolean>(false);
+
+  // 트리 데이터 로드
+  useEffect(() => {
+    async function loadTree() {
+      try {
+        const res = await fetch("/api/vault/tree");
+        const json = await res.json();
+        if (json.success && json.tree) {
+          setTree(json.tree);
+        }
+      } catch (err) {
+        console.error("Failed to load vault tree", err);
+      } finally {
+        setLoadingTree(false);
+      }
+    }
+    loadTree();
+  }, []);
+
+  const activeTab = useMemo(() => {
+    return tabs.find((t) => t.id === activeTabId) || tabs[0];
+  }, [tabs, activeTabId]);
+
+  // 활성 탭 파일 내용 로드
+  useEffect(() => {
+    if (!activeTab || !activeTab.path) return;
+    if (fileData[activeTab.path]) return; // 이미 로드됨
+
+    async function loadFileContent(filePath: string) {
+      setLoadingFile(true);
+      try {
+        const res = await fetch(`/api/vault/file?path=${encodeURIComponent(filePath)}`);
+        const json = await res.json();
+        if (json.success && json.file) {
+          setFileData((prev) => ({ ...prev, [filePath]: json.file }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch file content", err);
+      } finally {
+        setLoadingFile(false);
+      }
+    }
+
+    loadFileContent(activeTab.path);
+  }, [activeTab, fileData]);
+
+  // 폴더 토글
+  const toggleFolder = (folderPath: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(folderPath)) {
+        next.delete(folderPath);
+      } else {
+        next.add(folderPath);
+      }
+      return next;
+    });
+  };
+
+  // 파일 클릭 시 탭 열기
+  const handleOpenFile = (node: FileNode) => {
+    // 이미 열려 있는 탭이 있는지 확인
+    const existing = tabs.find((t) => t.path === node.path);
+    if (existing) {
+      setActiveTabId(existing.id);
+      return;
+    }
+
+    // 만약 현재 탭이 '새 탭'(빈 탭) 하나뿐이라면 현재 탭을 교체
+    if (tabs.length === 1 && !tabs[0].path) {
+      const updatedTab: TabItem = {
+        id: tabs[0].id,
+        name: node.name,
+        path: node.path,
+        ext: node.extension || "",
+      };
+      setTabs([updatedTab]);
+      setActiveTabId(updatedTab.id);
+      return;
+    }
+
+    // 새 탭 생성
+    const newTab: TabItem = {
+      id: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      name: node.name,
+      path: node.path,
+      ext: node.extension || "",
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  // 탭 닫기
+  const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
+    e.stopPropagation();
+    if (tabs.length === 1) {
+      // 마지막 탭을 닫으면 빈 탭으로 리셋
+      setTabs([{ id: "tab-home", name: "새 탭", path: "", ext: "" }]);
+      setActiveTabId("tab-home");
+      return;
+    }
+
+    const nextTabs = tabs.filter((t) => t.id !== tabId);
+    setTabs(nextTabs);
+    if (activeTabId === tabId) {
+      setActiveTabId(nextTabs[nextTabs.length - 1].id);
+    }
+  };
+
+  // 새 탭 추가
+  const handleAddTab = () => {
+    const newTab: TabItem = {
+      id: `tab-${Date.now()}`,
+      name: "새 탭",
+      path: "",
+      ext: "",
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
+  // 확장자 뱃지 렌더러
+  const renderBadge = (ext?: string) => {
+    if (!ext) return null;
+    const cleanExt = ext.replace(".", "").toUpperCase();
+    if (cleanExt === "MD") return null;
+
+    let badgeColor = "bg-slate-100 text-slate-600 border-slate-300";
+    if (cleanExt === "PDF") badgeColor = "bg-rose-50 text-rose-600 border-rose-200";
+    if (["XLSX", "XLS", "CSV"].includes(cleanExt)) badgeColor = "bg-emerald-50 text-emerald-700 border-emerald-200";
+    if (["PPTX", "PPT"].includes(cleanExt)) badgeColor = "bg-orange-50 text-orange-700 border-orange-200";
+    if (["M4A", "MP3", "WAV"].includes(cleanExt)) badgeColor = "bg-purple-50 text-purple-700 border-purple-200";
+    if (["MP4"].includes(cleanExt)) badgeColor = "bg-blue-50 text-blue-700 border-blue-200";
+
+    return (
+      <span className={`text-[10px] font-semibold px-1 py-0.2 rounded border font-mono shrink-0 ml-1.5 uppercase ${badgeColor}`}>
+        {cleanExt}
+      </span>
+    );
+  };
+
+  // 파일 용량 포맷
+  const formatBytes = (bytes?: number) => {
+    if (!bytes) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+  };
+
+  // 재귀적 파일 트리 렌더러
+  const renderTree = (nodes: FileNode[], depth = 0) => {
+    return (
+      <ul className={`space-y-0.5 ${depth > 0 ? "pl-3 border-l border-slate-200 ml-1.5" : ""}`}>
+        {nodes.map((node) => {
+          if (node.type === "directory") {
+            const isExpanded = expandedFolders.has(node.path);
+            return (
+              <li key={node.path} className="select-none">
+                <button
+                  onClick={() => toggleFolder(node.path)}
+                  className="w-full flex items-center gap-1.5 py-1 px-1.5 rounded-md hover:bg-slate-100 text-slate-800 text-[13px] font-medium transition-colors text-left group"
+                >
+                  <span className="w-3.5 h-3.5 flex items-center justify-center text-slate-400 group-hover:text-slate-600 shrink-0">
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  </span>
+                  <Folder className="w-4 h-4 text-amber-500/80 shrink-0" />
+                  <span className="truncate">{node.name}</span>
+                </button>
+                {isExpanded && node.children && node.children.length > 0 && renderTree(node.children, depth + 1)}
+              </li>
+            );
+          }
+
+          // 파일 노드
+          const isSelected = activeTab && activeTab.path === node.path;
+          return (
+            <li key={node.path} className="select-none">
+              <button
+                onClick={() => handleOpenFile(node)}
+                className={`w-full flex items-center justify-between py-1 px-1.5 rounded-md text-[13px] transition-colors text-left group ${
+                  isSelected
+                    ? "bg-[#e5effa] text-sky-900 font-semibold"
+                    : "hover:bg-slate-100 text-slate-700"
+                }`}
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
+                    {node.extension === ".md" ? (
+                      <FileText className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" />
+                    ) : ["m4a", "mp3"].includes((node.extension || "").replace(".", "")) ? (
+                      <Music className="w-3.5 h-3.5 text-purple-500" />
+                    ) : node.extension === ".mp4" ? (
+                      <Video className="w-3.5 h-3.5 text-blue-500" />
+                    ) : (
+                      <FileIcon className="w-3.5 h-3.5 text-slate-400" />
+                    )}
+                  </span>
+                  <span className="truncate">{node.name.replace(/\.md$/, "")}</span>
+                </div>
+                {renderBadge(node.extension)}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  // 실시간 검색 필터링된 트리
+  const filteredTree = useMemo(() => {
+    if (!searchQuery.trim()) return tree;
+
+    function filterNodes(nodes: FileNode[]): FileNode[] {
+      const results: FileNode[] = [];
+      for (const node of nodes) {
+        if (node.type === "directory" && node.children) {
+          const matchingChildren = filterNodes(node.children);
+          if (matchingChildren.length > 0 || node.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            results.push({ ...node, children: matchingChildren });
+          }
+        } else if (node.type === "file") {
+          if (node.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            results.push(node);
+          }
+        }
+      }
+      return results;
+    }
+
+    return filterNodes(tree);
+  }, [tree, searchQuery]);
+
+  // 활성 탭 파일
+  const currentDetail = activeTab && activeTab.path ? fileData[activeTab.path] : null;
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none">
+      {/* ========================================================= */}
+      {/* 1. 좌측 파일 탐색기 사이드바 (옵시디언 사이드바 완벽 복제) */}
+      {/* ========================================================= */}
+      {isSidebarOpen && (
+        <aside className="w-72 border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0">
+          {/* 사이드바 상단 헤더 & 검색 */}
+          <div className="p-3 border-b border-[#e3e3e6] space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-xs tracking-tight text-slate-800">
+                  2026DGS 보관함
+                </span>
+                <span className="text-[10px] bg-slate-200/80 text-slate-600 px-1.5 py-0.5 rounded font-mono">
+                  읽기전용
+                </span>
+              </div>
+              <button
+                onClick={() => setExpandedFolders(new Set())}
+                title="모든 폴더 접기"
+                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded transition-colors"
+              >
+                <Folder className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* 검색창 */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+              <input
+                type="text"
+                placeholder="파일 또는 폴더 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white border border-[#e3e3e6] rounded-md pl-8 pr-3 py-1 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 파일 트리 스크롤 영역 */}
+          <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
+            {loadingTree ? (
+              <div className="p-4 text-center text-xs text-slate-400">
+                보관함 트리를 불러오는 중...
+              </div>
+            ) : filteredTree.length === 0 ? (
+              <div className="p-4 text-center text-xs text-slate-400">
+                일치하는 파일이 없습니다.
+              </div>
+            ) : (
+              renderTree(filteredTree)
+            )}
+          </div>
+
+          {/* 좌측 사이드바 하단 상태바 (옵시디언 vault) */}
+          <div className="h-8 border-t border-[#e3e3e6] px-3 flex items-center justify-between text-[11px] text-slate-500 bg-[#f7f7f8]">
+            <div className="flex items-center gap-1.5 font-medium">
+              <HardDrive className="w-3 h-3 text-slate-400" />
+              <span>vault</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono">
+              2026dgs.cloud
+            </span>
+          </div>
+        </aside>
+      )}
+
+      {/* ========================================================= */}
+      {/* 2. 우측 메인 작업 영역 (상단 탭 바 + 본문 렌더러) */}
+      {/* ========================================================= */}
+      <section className="flex-1 flex flex-col min-w-0 bg-white">
+        {/* 상단 탭 바 (옵시디언 탭 바 완벽 복제) */}
+        <div className="h-10 bg-[#ededf0] border-b border-[#e3e3e6] flex items-center px-1 gap-1 overflow-x-auto select-none">
+          {/* 사이드바 토글 버튼 */}
+          <button
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            title="사이드바 열기/닫기"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 rounded transition-colors mr-1"
+          >
+            <Sidebar className="w-4 h-4" />
+          </button>
+
+          {/* 탭 목록 */}
+          {tabs.map((tab) => {
+            const isActive = tab.id === activeTabId;
+            return (
+              <div
+                key={tab.id}
+                onClick={() => setActiveTabId(tab.id)}
+                className={`group h-8 px-3 rounded-t-md flex items-center gap-2 text-xs font-medium cursor-pointer border-t-2 transition-all ${
+                  isActive
+                    ? "bg-white text-slate-900 border-sky-600 shadow-xs"
+                    : "bg-[#e5e5e8] text-slate-600 border-transparent hover:bg-[#e9e9ec] hover:text-slate-800"
+                }`}
+              >
+                <span className="max-w-[160px] truncate">
+                  {tab.name.replace(/\.md$/, "")}
+                </span>
+                <button
+                  onClick={(e) => handleCloseTab(e, tab.id)}
+                  title="탭 닫기"
+                  className="opacity-0 group-hover:opacity-100 hover:bg-slate-200 rounded p-0.5 transition-opacity text-slate-500 hover:text-slate-800"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            );
+          })}
+
+          {/* 새 탭 추가 버튼 */}
+          <button
+            onClick={handleAddTab}
+            title="새 탭 열기"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 rounded transition-colors ml-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* 탭 네비게이션 서브바 (뒤로가기/경로/다운로드) */}
+        <div className="h-9 border-b border-[#e3e3e6] bg-white px-4 flex items-center justify-between text-xs text-slate-600">
+          <div className="flex items-center gap-2 truncate">
+            <span className="text-slate-400 font-mono text-[11px]">경로:</span>
+            <span className="font-medium text-slate-800 truncate">
+              {activeTab && activeTab.path ? `vault / ${activeTab.path}` : "시작 화면"}
+            </span>
+          </div>
+
+          {activeTab && activeTab.path && (
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
+                download
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors text-xs"
+              >
+                <Download className="w-3.5 h-3.5 text-slate-600" />
+                <span>원본 다운로드</span>
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* 본문 콘텐츠 렌더링 영역 */}
+        <main className="flex-1 overflow-y-auto bg-white select-text">
+          {/* (1) 빈 탭 (새 탭) - 옵시디언 기본 화면 복제 */}
+          {(!activeTab || !activeTab.path) && (
+            <div className="h-full flex flex-col items-center justify-center p-6 text-center select-none">
+              <div className="max-w-md w-full space-y-6">
+                {/* 보관함 로고 & 환영 안내 */}
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                  <HardDrive className="w-8 h-8" />
+                </div>
+                <div className="space-y-1.5">
+                  <h2 className="text-lg font-bold text-slate-900">
+                    2026dgs 과업 문서 및 미디어 공유 플랫폼
+                  </h2>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    대한민국 구석구석 FGI 과업 옵시디언(Obsidian) 보관함과 실시간 연동되어 있습니다.
+                  </p>
+                </div>
+
+                {/* 빠른 탐색 버튼들 (옵시디언 바로가기 스타일) */}
+                <div className="space-y-2 pt-2">
+                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
+                    <span className="text-slate-700 font-medium">좌측 탐색기에서 열람할 문서를 선택하십시오.</span>
+                    <span className="text-[10px] text-slate-400 font-mono">클릭 즉시 열람</span>
+                  </div>
+                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
+                    <span className="text-slate-700 font-medium">회의록, 분석서, PDF, 실무 보고서 지원</span>
+                    <span className="text-[10px] text-slate-400 font-mono">읽기 전용</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* (2) 파일 로딩 상태 */}
+          {activeTab && activeTab.path && loadingFile && (
+            <div className="h-full flex items-center justify-center text-xs text-slate-400">
+              문서를 불러오는 중입니다...
+            </div>
+          )}
+
+          {/* (3) 마크다운 문서 (.md) 열람 */}
+          {activeTab && activeTab.path && !loadingFile && currentDetail && currentDetail.isText && (
+            <div className="max-w-4xl mx-auto px-8 py-10">
+              <article className="prose prose-slate max-w-none text-[15px] leading-relaxed">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ node, ...props }) => (
+                      <h1 className="text-2xl font-extrabold text-slate-900 border-b border-slate-200 pb-2 mt-6 mb-4" {...props} />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2 className="text-xl font-bold text-slate-800 mt-6 mb-3 border-b border-slate-100 pb-1" {...props} />
+                    ),
+                    h3: ({ node, ...props }) => (
+                      <h3 className="text-lg font-bold text-slate-800 mt-5 mb-2" {...props} />
+                    ),
+                    p: ({ node, ...props }) => (
+                      <p className="my-2.5 text-slate-700 leading-relaxed break-keep" {...props} />
+                    ),
+                    ul: ({ node, ...props }) => (
+                      <ul className="list-disc pl-5 my-2 space-y-1 text-slate-700" {...props} />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol className="list-decimal pl-5 my-2 space-y-1 text-slate-700" {...props} />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li className="text-slate-700" {...props} />
+                    ),
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote className="border-l-4 border-sky-500 pl-4 py-1 my-3 bg-sky-50/50 text-slate-700 italic rounded-r" {...props} />
+                    ),
+                    table: ({ node, ...props }) => (
+                      <div className="overflow-x-auto my-4">
+                        <table className="w-full border-collapse border border-slate-300 text-xs text-left" {...props} />
+                      </div>
+                    ),
+                    thead: ({ node, ...props }) => (
+                      <thead className="bg-slate-100 border-b border-slate-300 font-bold text-slate-800" {...props} />
+                    ),
+                    th: ({ node, ...props }) => (
+                      <th className="border border-slate-300 px-3 py-2 text-slate-800" {...props} />
+                    ),
+                    td: ({ node, ...props }) => (
+                      <td className="border border-slate-300 px-3 py-2 text-slate-700" {...props} />
+                    ),
+                    code: ({ node, className, children, ...props }) => {
+                      return (
+                        <code className="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded text-xs font-mono" {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                >
+                  {currentDetail.content || ""}
+                </ReactMarkdown>
+              </article>
+            </div>
+          )}
+
+          {/* (4) PDF 문서 인라인 전체화면 열람 */}
+          {activeTab && activeTab.path && !loadingFile && activeTab.ext.toLowerCase() === ".pdf" && (
+            <div className="h-full flex flex-col">
+              <iframe
+                src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                className="w-full h-full border-none"
+                title={activeTab.name}
+              />
+            </div>
+          )}
+
+          {/* (5) 대용량 음원/오디오 (.m4a, .mp3) 열람 */}
+          {activeTab && activeTab.path && !loadingFile && [".m4a", ".mp3", ".wav"].includes(activeTab.ext.toLowerCase()) && (
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+              <div className="max-w-md w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs">
+                <div className="w-14 h-14 mx-auto rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                  <Music className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900 truncate">{activeTab.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">인터뷰 / 회의 녹취 오디오 스트리밍</p>
+                </div>
+
+                <audio
+                  controls
+                  className="w-full mt-2"
+                  src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                >
+                  브라우저가 오디오 재생을 지원하지 않습니다.
+                </audio>
+
+                <div className="pt-2">
+                  <a
+                    href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
+                    download
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>음원 파일 원본 다운로드</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* (6) 실무 첨부파일 다운로드 카드 (.xlsx, .pptx, .hwp, .docx 등) */}
+          {activeTab &&
+            activeTab.path &&
+            !loadingFile &&
+            ![".md", ".pdf", ".m4a", ".mp3", ".wav"].includes(activeTab.ext.toLowerCase()) && (
+              <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                <div className="max-w-md w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs">
+                  <div className="w-14 h-14 mx-auto rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
+                    <FileSpreadsheet className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-slate-900 break-words">{activeTab.name}</h3>
+                    <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mt-1.5 font-mono">
+                      <span>형식: {activeTab.ext.toUpperCase()}</span>
+                      {currentDetail?.size && <span>• 용량: {formatBytes(currentDetail.size)}</span>}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-600 leading-relaxed text-left">
+                    본 문서는 전용 오피스 뷰어가 필요한 바이너리 파일입니다. 아래 다운로드 버튼을 클릭하여 로컬 PC에서 즉시 열람하십시오.
+                  </div>
+
+                  <div className="pt-2">
+                    <a
+                      href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
+                      download
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors shadow-sm"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>파일 다운로드 ({activeTab.ext.toUpperCase()})</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+        </main>
+      </section>
+    </div>
+  );
+}
