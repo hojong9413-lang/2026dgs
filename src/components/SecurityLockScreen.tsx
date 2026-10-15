@@ -126,8 +126,7 @@ export default function SecurityLockScreen({ onSuccess }: SecurityLockScreenProp
 
         {/* 푸터 안내 */}
         <div className="pt-2 border-t border-slate-800/80 text-center text-[11px] text-slate-500">
-          소관: 한국관광공사 관광AX기획팀 용역과업<br />
-          보안 도메인: 2026dgs.cloud
+          운영 : (주)투어리즘인사이트
         </div>
       </div>
     </div>
