@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const VALID_PASSWORD = process.env.DGS_ACCESS_PASSWORD || "ktofgi09301204!";
+const VALID_PASSWORD = process.env.DGS_ACCESS_PASSWORD;
 const AUTH_COOKIE_NAME = "dgs_access_token";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { password } = body;
+
+    if (!VALID_PASSWORD) {
+      console.error("DGS_ACCESS_PASSWORD environment variable is not configured.");
+      return NextResponse.json(
+        { success: false, message: "서버 보안 환경변수(DGS_ACCESS_PASSWORD)가 설정되지 않았습니다. 관리자에게 문의하십시오." },
+        { status: 500 }
+      );
+    }
 
     if (!password) {
       return NextResponse.json({ success: false, message: "비밀번호를 입력해 주십시오." }, { status: 400 });
