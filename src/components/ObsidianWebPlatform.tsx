@@ -725,6 +725,20 @@ export default function ObsidianWebPlatform() {
                       스마트 링크 지원
                     </span>
                   </div>
+
+                  <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors text-left flex items-center justify-between shadow-xs">
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-slate-800">
+                        옵시디언 노트, PDF, 이미지, 음성녹음파일 보기 지원
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        기타 PPT, EXCEL, HWP 등 업무용 문서는 원클릭 다운로드 지원
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-purple-100 text-purple-800 shrink-0 ml-3">
+                      뷰어 / 다운로드
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
