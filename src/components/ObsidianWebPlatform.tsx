@@ -679,28 +679,51 @@ export default function ObsidianWebPlatform() {
         {/* 본문 콘텐츠 렌더링 영역 */}
         <main className="flex-1 overflow-y-auto bg-white select-text">
           {(!activeTab || !activeTab.path) && (
-            <div className="h-full flex flex-col items-center justify-center p-6 text-center select-none">
-              <div className="max-w-md w-full space-y-6">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
-                  <HardDrive className="w-8 h-8" />
+            <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none">
+              <div className="max-w-xl w-full space-y-8">
+                {/* 큼직한 상단 아이콘 */}
+                <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+                  <HardDrive className="w-10 h-10" />
                 </div>
-                <div className="space-y-1.5">
-                  <h2 className="text-lg font-bold text-slate-900">
+
+                {/* 큼직하고 선명한 타이틀 & 부제목 */}
+                <div className="space-y-3">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                     2026dgs 과업 문서 및 미디어 공유 플랫폼
                   </h2>
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
                     대한민국 구석구석 FGI 과업 옵시디언(Obsidian) 보관함과 실시간 연동되어 있습니다.
                   </p>
                 </div>
 
-                <div className="space-y-2 pt-2">
-                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
-                    <span className="text-slate-700 font-medium">좌측 탐색기에서 열람할 문서를 선택하십시오.</span>
-                    <span className="text-[10px] text-slate-400 font-mono">클릭 즉시 열람</span>
+                {/* 시원시원한 안내 카드들 */}
+                <div className="space-y-3 pt-2">
+                  <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors text-left flex items-center justify-between shadow-xs">
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-slate-800">
+                        좌측 탐색기에서 열람할 문서를 선택하십시오.
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        회의록, 착수보고서, FGI 분석 마크다운 및 실무 파일 제공
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-200/70 text-slate-700 shrink-0 ml-3">
+                      클릭 즉시 열람
+                    </span>
                   </div>
-                  <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-left flex items-center justify-between text-xs">
-                    <span className="text-slate-700 font-medium">본문 속 [[내부링크]] 클릭 시 현재 창에서 즉시 이동</span>
-                    <span className="text-[10px] text-sky-600 font-mono">뒤로가기 지원</span>
+
+                  <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors text-left flex items-center justify-between shadow-xs">
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-slate-800">
+                        본문 속 [[내부링크]] 클릭 시 현재 창에서 즉시 이동
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        상단 좌측 뒤로가기(←) 및 앞으로가기(→)로 이전 문서 복귀 지원
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-sky-100 text-sky-800 shrink-0 ml-3">
+                      스마트 링크 지원
+                    </span>
                   </div>
                 </div>
               </div>
