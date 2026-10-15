@@ -68,6 +68,10 @@ export default function ObsidianWebPlatform() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
+  // 사이드바 너비 마우스 드래그 조절 상태 (기본 280px)
+  const [sidebarWidth, setSidebarWidth] = useState<number>(280);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+
   // 탭 관리 (각 탭마다 자체 뒤로가기/앞으로가기 히스토리 보존)
   const [tabs, setTabs] = useState<TabItem[]>([
     {
@@ -102,6 +106,35 @@ export default function ObsidianWebPlatform() {
     }
     loadTree();
   }, []);
+
+  // 사이드바 너비 마우스 드래그 리사이징 이벤트 등록
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const maxAllowed = Math.min(window.innerWidth * 0.65, 700);
+      const newWidth = Math.max(180, Math.min(e.clientX, maxAllowed));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
 
   // 보관함 내 전수 파일 평탄화 (위키링크 [[...]] 검색용)
   const allFilesList = useMemo(() => {
@@ -193,23 +226,20 @@ export default function ObsidianWebPlatform() {
     setActiveTabId(newTab.id);
   };
 
-  // ★ 내부 링크 클릭 시: 새 창이 아니라 [현재 활성 창(자체 창)]에서 바로 이동!
+  // 내부 링크 클릭 시: [현재 활성 창(자체 창)]에서 바로 이동
   const handleOpenByLinkName = (linkText: string) => {
     let cleanTarget = linkText.split("#")[0].trim().toLowerCase();
     if (!cleanTarget) return;
 
-    // 만약 폴더 링크(끝에 /)인 경우 사이드바에서 해당 폴더 열기
     if (cleanTarget.endsWith("/")) {
       const folderTarget = cleanTarget.slice(0, -1);
       setExpandedFolders((prev) => new Set([...prev, folderTarget]));
       return;
     }
 
-    // 파일명만 추출
     const targetBaseName = cleanTarget.split("/").pop() || cleanTarget;
     const targetBaseNameWithoutExt = targetBaseName.replace(/\.[^/.]+$/, "");
 
-    // 일치하는 파일 찾기 (전체 경로, 파일명, 확장자 제외 파일명 전방위 대조)
     const match = allFilesList.find((f) => {
       const fPathLower = f.path.toLowerCase();
       const fNameLower = f.name.toLowerCase();
@@ -224,7 +254,6 @@ export default function ObsidianWebPlatform() {
     });
 
     if (match) {
-      // 현재 열려 있는 탭 자체에서 문서 내용 즉시 교체 및 히스토리 기록
       setTabs((prevTabs) =>
         prevTabs.map((tab) => {
           if (tab.id === activeTabId) {
@@ -449,7 +478,6 @@ export default function ObsidianWebPlatform() {
   const currentDetail = activeTab && activeTab.path ? fileData[activeTab.path] : null;
 
   // 마크다운 위키링크 [[노트명|별칭]] 또는 [[노트명]] 전처리
-  // 안전하게 표준 해시 규격인 #vault-internal- 링크로 변환하여 sanitization 방지
   const processedMarkdown = useMemo(() => {
     if (!currentDetail?.content) return "";
     return currentDetail.content.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, (match, note, alias) => {
@@ -465,73 +493,87 @@ export default function ObsidianWebPlatform() {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none">
       {/* ========================================================= */}
-      {/* 1. 좌측 파일 탐색기 사이드바 */}
+      {/* 1. 좌측 파일 탐색기 사이드바 (가로 너비 마우스 드래그 조절 지원) */}
       {/* ========================================================= */}
       {isSidebarOpen && (
-        <aside className="w-72 border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0">
-          <div className="p-3 border-b border-[#e3e3e6] space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs tracking-tight text-slate-800">
-                  2026DGS 보관함
-                </span>
-                <span className="text-[10px] bg-slate-200/80 text-slate-600 px-1.5 py-0.5 rounded font-mono">
-                  읽기전용
-                </span>
+        <>
+          <aside
+            style={{ width: `${sidebarWidth}px` }}
+            className="border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0 overflow-hidden"
+          >
+            <div className="p-3 border-b border-[#e3e3e6] space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-xs tracking-tight text-slate-800">
+                    2026DGS 보관함
+                  </span>
+                  <span className="text-[10px] bg-slate-200/80 text-slate-600 px-1.5 py-0.5 rounded font-mono">
+                    읽기전용
+                  </span>
+                </div>
+                <button
+                  onClick={() => setExpandedFolders(new Set())}
+                  title="모든 폴더 접기"
+                  className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded transition-colors"
+                >
+                  <Folder className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button
-                onClick={() => setExpandedFolders(new Set())}
-                title="모든 폴더 접기"
-                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded transition-colors"
-              >
-                <Folder className="w-3.5 h-3.5" />
-              </button>
+
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+                <input
+                  type="text"
+                  placeholder="파일 또는 폴더 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white border border-[#e3e3e6] rounded-md pl-8 pr-3 py-1 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
-              <input
-                type="text"
-                placeholder="파일 또는 폴더 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-[#e3e3e6] rounded-md pl-8 pr-3 py-1 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+            <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
+              {loadingTree ? (
+                <div className="p-4 text-center text-xs text-slate-400">
+                  보관함 트리를 불러오는 중...
+                </div>
+              ) : filteredTree.length === 0 ? (
+                <div className="p-4 text-center text-xs text-slate-400">
+                  일치하는 파일이 없습니다.
+                </div>
+              ) : (
+                renderTree(filteredTree)
               )}
             </div>
-          </div>
 
-          <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
-            {loadingTree ? (
-              <div className="p-4 text-center text-xs text-slate-400">
-                보관함 트리를 불러오는 중...
+            <div className="h-8 border-t border-[#e3e3e6] px-3 flex items-center justify-between text-[11px] text-slate-500 bg-[#f7f7f8]">
+              <div className="flex items-center gap-1.5 font-medium">
+                <HardDrive className="w-3 h-3 text-slate-400" />
+                <span>vault</span>
               </div>
-            ) : filteredTree.length === 0 ? (
-              <div className="p-4 text-center text-xs text-slate-400">
-                일치하는 파일이 없습니다.
-              </div>
-            ) : (
-              renderTree(filteredTree)
-            )}
-          </div>
-
-          <div className="h-8 border-t border-[#e3e3e6] px-3 flex items-center justify-between text-[11px] text-slate-500 bg-[#f7f7f8]">
-            <div className="flex items-center gap-1.5 font-medium">
-              <HardDrive className="w-3 h-3 text-slate-400" />
-              <span>vault</span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                2026dgs.cloud
+              </span>
             </div>
-            <span className="text-[10px] text-slate-400 font-mono">
-              2026dgs.cloud
-            </span>
-          </div>
-        </aside>
+          </aside>
+
+          {/* ★ 좌우 경계선 마우스 드래그 리사이저 핸들 ★ */}
+          <div
+            onMouseDown={() => setIsResizing(true)}
+            className={`w-1 -ml-0.5 cursor-col-resize z-20 hover:bg-sky-400 transition-colors select-none ${
+              isResizing ? "bg-sky-500 shadow-xs" : "bg-transparent"
+            }`}
+            title="마우스로 드래그하여 사이드바 너비를 조절할 수 있습니다"
+          />
+        </>
       )}
 
       {/* ========================================================= */}
@@ -740,7 +782,6 @@ export default function ObsidianWebPlatform() {
                     ),
                     // 내부 링크는 [현재 창(자체 창)]에서 바로 이동 / 순수 외부는 새 탭
                     a: ({ node, href, children, ...props }) => {
-                      // 1. 내부 위키링크 프리픽스 (#vault-internal-)
                       if (href && href.startsWith("#vault-internal-")) {
                         const target = decodeURIComponent(href.replace("#vault-internal-", ""));
                         return (
@@ -758,7 +799,6 @@ export default function ObsidianWebPlatform() {
                         );
                       }
 
-                      // 2. 상대 경로 파일 링크 (http/https/mailto 가 아닌 일반 로컬 링크)
                       if (
                         href &&
                         !href.startsWith("http://") &&
@@ -780,7 +820,6 @@ export default function ObsidianWebPlatform() {
                         );
                       }
 
-                      // 3. 순수 외부 웹 링크 (https://...)만 새 브라우저 탭
                       return (
                         <a
                           href={href}
@@ -807,7 +846,7 @@ export default function ObsidianWebPlatform() {
             <div className="h-full flex flex-col">
               <iframe
                 src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
-                className="w-full h-full border-none"
+                className={`w-full h-full border-none ${isResizing ? "pointer-events-none" : ""}`}
                 title={activeTab.name}
               />
             </div>
