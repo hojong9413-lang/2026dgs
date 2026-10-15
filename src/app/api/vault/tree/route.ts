@@ -61,12 +61,13 @@ function scanVault(dirPath: string, relativePath: string = ""): FileNode[] {
   });
 }
 
+import { checkIsAuthenticated } from "@/lib/auth";
+
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get("dgs_access_token");
-    if (token?.value !== "authenticated_user") {
+    if (!checkIsAuthenticated(request)) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
     const vaultPath = path.join(process.cwd(), "vault");
