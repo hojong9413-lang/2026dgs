@@ -42,6 +42,7 @@ interface FileNode {
   extension?: string;
   size?: number;
   updatedAt?: string;
+  r2Url?: string;
   children?: FileNode[];
 }
 
@@ -68,6 +69,7 @@ interface FileDetail {
   updatedAt: string;
   isText: boolean;
   content: string | null;
+  r2Url?: string;
 }
 
 interface ParsedMarkdownData {
@@ -1390,7 +1392,10 @@ export default function ObsidianWebPlatform() {
           {activeTab && activeTab.path && !loadingFile && activeTab.ext.toLowerCase() === ".pdf" && (
             <div className="h-full flex flex-col">
               <iframe
-                src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                src={
+                  currentDetail?.r2Url ||
+                  `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`
+                }
                 className={`w-full h-full border-none ${isResizing ? "pointer-events-none" : ""}`}
                 title={activeTab.name}
               />
@@ -1427,7 +1432,10 @@ export default function ObsidianWebPlatform() {
 
                     <div className="flex items-center gap-2 shrink-0">
                       <a
-                        href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                        href={
+                          currentDetail?.r2Url ||
+                          `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors"
@@ -1449,7 +1457,10 @@ export default function ObsidianWebPlatform() {
                   {/* 이미지 프리뷰 캔버스 */}
                   <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex items-center justify-center shadow-xs overflow-auto">
                     <img
-                      src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                      src={
+                        currentDetail?.r2Url ||
+                        `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`
+                      }
                       alt={activeTab.name}
                       className="max-w-full h-auto rounded-lg shadow-xs object-contain"
                     />
@@ -1458,7 +1469,71 @@ export default function ObsidianWebPlatform() {
               </div>
             )}
 
-          {/* 대용량 음원 (.m4a, .mp3) */}
+          {/* 대용량 동영상 (.mp4, .mov, .webm) Cloudflare R2 스트리밍 플레이어 */}
+          {activeTab &&
+            activeTab.path &&
+            !loadingFile &&
+            [".mp4", ".mov", ".webm"].includes(activeTab.ext.toLowerCase()) && (
+              <div className="min-h-full flex flex-col items-center justify-start p-6 sm:p-10 bg-slate-50/60">
+                <div className="max-w-5xl w-full space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-2xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                        <Video className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm text-slate-900 truncate">
+                          {activeTab.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                          <span>형식: {activeTab.ext.toUpperCase()}</span>
+                          {currentDetail?.size && (
+                            <span>• 용량: {formatBytes(currentDetail.size)}</span>
+                          )}
+                          {currentDetail?.r2Url && (
+                            <span className="text-sky-600 font-semibold">
+                              • Cloudflare R2 스트리밍 연동됨
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={
+                          currentDetail?.r2Url ||
+                          `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`
+                        }
+                        download={activeTab.name}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors shadow-2xs"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>동영상 원본 다운로드</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="bg-black rounded-2xl overflow-hidden shadow-md border border-slate-800">
+                    <video
+                      controls
+                      preload="metadata"
+                      className="w-full max-h-[72vh] mx-auto"
+                      src={
+                        currentDetail?.r2Url ||
+                        `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`
+                      }
+                    >
+                      브라우저가 비디오 스트리밍을 지원하지 않습니다.
+                    </video>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          {/* 대용량 음원 (.m4a, .mp3, .wav) */}
           {activeTab &&
             activeTab.path &&
             !loadingFile &&
@@ -1470,21 +1545,33 @@ export default function ObsidianWebPlatform() {
                   </div>
                   <div>
                     <h3 className="font-bold text-base text-slate-900 truncate">{activeTab.name}</h3>
-                    <p className="text-xs text-slate-500 mt-1">인터뷰 / 회의 녹취 오디오 스트리밍</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      인터뷰 / 회의 녹취 오디오 스트리밍
+                      {currentDetail?.size ? ` (${formatBytes(currentDetail.size)})` : ""}
+                    </p>
                   </div>
 
                   <audio
                     controls
+                    preload="metadata"
                     className="w-full mt-2"
-                    src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                    src={
+                      currentDetail?.r2Url ||
+                      `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`
+                    }
                   >
                     브라우저가 오디오 재생을 지원하지 않습니다.
                   </audio>
 
                   <div className="pt-2">
                     <a
-                      href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
-                      download
+                      href={
+                        currentDetail?.r2Url ||
+                        `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`
+                      }
+                      download={activeTab.name}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition-colors"
                     >
                       <Download className="w-4 h-4" />
@@ -1505,6 +1592,9 @@ export default function ObsidianWebPlatform() {
               ".m4a",
               ".mp3",
               ".wav",
+              ".mp4",
+              ".mov",
+              ".webm",
               ".png",
               ".jpg",
               ".jpeg",
@@ -1531,8 +1621,11 @@ export default function ObsidianWebPlatform() {
 
                   <div className="pt-2">
                     <a
-                      href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
-                      download
+                      href={
+                        currentDetail?.r2Url ||
+                        `/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`
+                      }
+                      download={activeTab.name}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors shadow-sm"
                     >
                       <Download className="w-4 h-4" />

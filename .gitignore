@@ -45,4 +45,11 @@ vault/.obsidian/workspace*.json
 vault/.obsidian/cache
 vault/.obsidian/plugins/
 
+# 대용량 동영상 파일 (Cloudflare R2로 분리 동기화하여 GitHub 100MB 제한 방지)
+vault/**/*.mp4
+vault/**/*.mov
+vault/**/*.mkv
+vault/**/*.avi
+
+
 
