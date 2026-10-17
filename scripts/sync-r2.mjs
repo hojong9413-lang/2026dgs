@@ -366,6 +366,37 @@ async function main() {
 
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(newManifest, null, 2), "utf-8");
 
+  // 50MB 이상 대용량 파일(또는 동영상)은 GitHub 100MB 푸시 차단 방지를 위해 .gitignore 자동 등록 및 스테이징 해제
+  const GIT_EXCLUDE_SIZE = 50 * 1024 * 1024; // 50MB
+  const VIDEO_EXTS = new Set([".mp4", ".mov", ".webm", ".mkv", ".avi"]);
+  const gitignorePath = path.resolve(process.cwd(), ".gitignore");
+  if (fs.existsSync(gitignorePath)) {
+    let gitignoreContent = fs.readFileSync(gitignorePath, "utf-8");
+    let gitignoreUpdated = false;
+    const { execSync } = await import("child_process");
+
+    for (const file of targetFiles) {
+      if (file.size >= GIT_EXCLUDE_SIZE || VIDEO_EXTS.has(file.extension)) {
+        const ignoreRule = `vault/${file.path}`;
+        if (!gitignoreContent.includes(ignoreRule)) {
+          gitignoreContent = gitignoreContent.trimEnd() + `\n${ignoreRule}\n`;
+          gitignoreUpdated = true;
+          try {
+            execSync(`git rm --cached --ignore-unmatch "${ignoreRule}"`, {
+              stdio: "ignore",
+            });
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
+
+    if (gitignoreUpdated) {
+      fs.writeFileSync(gitignorePath, gitignoreContent, "utf-8");
+    }
+  }
+
   console.log("\n✅ Cloudflare R2 동기화 완료!");
   console.log(`   - 신규/변경 업로드: ${uploadedCount}건`);
   console.log(`   - 기존 유지(건너뜀): ${skippedCount}건`);
