@@ -30,6 +30,7 @@ import {
   UserCheck,
   Layers,
   Bot,
+  Image as ImageIcon,
 } from "lucide-react";
 import SecurityLockScreen from "./SecurityLockScreen";
 import ObsidianCalendarView from "./ObsidianCalendarView";
@@ -717,6 +718,8 @@ export default function ObsidianWebPlatform() {
     if (["M4A", "MP3", "WAV"].includes(cleanExt))
       badgeColor = "bg-purple-50 text-purple-700 border-purple-200";
     if (["MP4"].includes(cleanExt)) badgeColor = "bg-blue-50 text-blue-700 border-blue-200";
+    if (["PNG", "JPG", "JPEG", "GIF", "WEBP", "SVG"].includes(cleanExt))
+      badgeColor = "bg-sky-50 text-sky-700 border-sky-200";
 
     return (
       <span
@@ -787,10 +790,14 @@ export default function ObsidianWebPlatform() {
                   <span className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
                     {node.extension === ".md" ? (
                       <FileText className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600" />
-                    ) : ["m4a", "mp3"].includes((node.extension || "").replace(".", "")) ? (
+                    ) : ["m4a", "mp3", "wav"].includes((node.extension || "").replace(".", "").toLowerCase()) ? (
                       <Music className="w-3.5 h-3.5 text-purple-500" />
                     ) : node.extension === ".mp4" ? (
                       <Video className="w-3.5 h-3.5 text-blue-500" />
+                    ) : ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(
+                        (node.extension || "").replace(".", "").toLowerCase()
+                      ) ? (
+                      <ImageIcon className="w-3.5 h-3.5 text-sky-500" />
                     ) : (
                       <FileIcon className="w-3.5 h-3.5 text-slate-400" />
                     )}
@@ -838,8 +845,35 @@ export default function ObsidianWebPlatform() {
     }
     const parsed = parseObsidianMarkdown(currentDetail.content);
 
-    // 위키링크 치환
-    const processedBody = parsed.body.replace(
+    // 1. 옵시디언 이미지 임베드 ![[파일명.png]] 치환
+    const bodyWithEmbeds = parsed.body.replace(
+      /!\[\[(.*?)(?:\|(.*?))?\]\]/g,
+      (match, note, alias) => {
+        const cleanTarget = note.split("#")[0].trim();
+        const displayText = alias ? alias.trim() : cleanTarget;
+        const lowerTarget = cleanTarget.toLowerCase();
+        const isImageTarget = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"].some((ext) =>
+          lowerTarget.endsWith(ext)
+        );
+
+        if (isImageTarget) {
+          const targetBaseName = lowerTarget.split("/").pop() || lowerTarget;
+          const foundFile = allFilesList.find(
+            (f) =>
+              f.path.toLowerCase() === lowerTarget ||
+              f.name.toLowerCase() === targetBaseName
+          );
+          const resolvedPath = foundFile ? foundFile.path : cleanTarget;
+          return `![${displayText}](/api/vault/raw?path=${encodeURIComponent(resolvedPath)})`;
+        }
+
+        const targetNote = encodeURIComponent(cleanTarget);
+        return `[${displayText}](#vault-internal-${targetNote})`;
+      }
+    );
+
+    // 2. 일반 위키링크 [[노트명|별칭]] 치환
+    const processedBody = bodyWithEmbeds.replace(
       /\[\[(.*?)(?:\|(.*?))?\]\]/g,
       (match, note, alias) => {
         const displayText = alias ? alias.trim() : note.trim();
@@ -860,7 +894,7 @@ export default function ObsidianWebPlatform() {
       extractedTitle: displayTitle,
       body: processedBody,
     };
-  }, [currentDetail?.content, activeTab?.name]);
+  }, [currentDetail?.content, activeTab?.name, allFilesList]);
 
   const canGoBack = activeTab && activeTab.historyIndex > 0;
   const canGoForward = activeTab && activeTab.historyIndex < activeTab.history.length - 1;
@@ -1333,6 +1367,17 @@ export default function ObsidianWebPlatform() {
                         </a>
                       );
                     },
+                    img: ({ node, src, alt, ...props }) => (
+                      <span className="block my-4">
+                        <img
+                          src={src}
+                          alt={alt || ""}
+                          className="max-w-full h-auto rounded-lg border border-slate-200 shadow-xs mx-auto"
+                          loading="lazy"
+                          {...props}
+                        />
+                      </span>
+                    ),
                   }}
                 >
                   {parsedMarkdown.body}
@@ -1351,6 +1396,67 @@ export default function ObsidianWebPlatform() {
               />
             </div>
           )}
+
+          {/* 이미지 파일 (.png, .jpg, .jpeg, .gif, .webp, .svg) 인라인 뷰어 */}
+          {activeTab &&
+            activeTab.path &&
+            !loadingFile &&
+            [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"].includes(
+              activeTab.ext.toLowerCase()
+            ) && (
+              <div className="min-h-full flex flex-col items-center justify-start p-6 sm:p-10 bg-slate-50/60">
+                <div className="max-w-5xl w-full space-y-4">
+                  {/* 이미지 정보 및 액션 헤더 */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-2xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 shrink-0">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm text-slate-900 truncate">
+                          {activeTab.name}
+                        </h3>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                          <span>형식: {activeTab.ext.toUpperCase()}</span>
+                          {currentDetail?.size && (
+                            <span>• 용량: {formatBytes(currentDetail.size)}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <a
+                        href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                        <span>새 창에서 원본 보기</span>
+                      </a>
+                      <a
+                        href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
+                        download
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors shadow-2xs"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>이미지 다운로드</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* 이미지 프리뷰 캔버스 */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 flex items-center justify-center shadow-xs overflow-auto">
+                    <img
+                      src={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}`}
+                      alt={activeTab.name}
+                      className="max-w-full h-auto rounded-lg shadow-xs object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
           {/* 대용량 음원 (.m4a, .mp3) */}
           {activeTab &&
@@ -1393,7 +1499,19 @@ export default function ObsidianWebPlatform() {
           {activeTab &&
             activeTab.path &&
             !loadingFile &&
-            ![".md", ".pdf", ".m4a", ".mp3", ".wav"].includes(activeTab.ext.toLowerCase()) && (
+            ![
+              ".md",
+              ".pdf",
+              ".m4a",
+              ".mp3",
+              ".wav",
+              ".png",
+              ".jpg",
+              ".jpeg",
+              ".gif",
+              ".webp",
+              ".svg",
+            ].includes(activeTab.ext.toLowerCase()) && (
               <div className="h-full flex flex-col items-center justify-center p-8 text-center">
                 <div className="max-w-md w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs">
                   <div className="w-14 h-14 mx-auto rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
