@@ -287,7 +287,7 @@ export default function ObsidianWebPlatform() {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loadingTree, setLoadingTree] = useState<boolean>(true);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
-    new Set(["00_과업개요", "02_주요진행상황", "03_회의록", "04_보고서파일", "50_FGI"])
+    new Set(["02_주요진행상황", "30_관계자인터뷰", "50_FGI"])
   );
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
