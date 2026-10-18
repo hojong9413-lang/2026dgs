@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-18T07:00:42.113Z",
+  "updatedAt": "2026-10-18T08:26:25.706Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -169,6 +169,14 @@
       "size": 16597471,
       "updatedAt": "2026-10-14T08:09:32.099Z",
       "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/90_%EB%B3%B4%EC%95%88_AI_%EA%B8%B0%ED%83%80%ED%8C%8C%EC%9D%BC/%EC%9A%A9%EC%97%AD%EC%82%AC%EC%97%85%20%EB%B3%B4%EC%95%88%EA%B4%80%EB%A6%AC%20%EA%B5%90%EC%9C%A1%EA%B2%B0%EA%B3%BC%EC%84%9C_20261014.pdf"
+    },
+    "10_현황분석/(누아) AI여행비서_착수보고_최종.pdf": {
+      "name": "(누아) AI여행비서_착수보고_최종.pdf",
+      "path": "10_현황분석/(누아) AI여행비서_착수보고_최종.pdf",
+      "extension": ".pdf",
+      "size": 14331289,
+      "updatedAt": "2026-10-13T06:47:56.397Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/10_%ED%98%84%ED%99%A9%EB%B6%84%EC%84%9D/%28%EB%88%84%EC%95%84%29%20AI%EC%97%AC%ED%96%89%EB%B9%84%EC%84%9C_%EC%B0%A9%EC%88%98%EB%B3%B4%EA%B3%A0_%EC%B5%9C%EC%A2%85.pdf"
     }
   }
 }
