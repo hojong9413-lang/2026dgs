@@ -970,13 +970,13 @@ export default function ObsidianWebPlatform() {
   // 본문 인터페이스 (인증 통과 시)
   // =========================================================
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#fbfbfb] text-[#222222] font-sans antialiased select-none print:block print:h-auto print:w-full print:overflow-visible print:bg-white">
       {/* 1. 좌측 파일 탐색기 사이드바 */}
       {isSidebarOpen && (
         <>
           <aside
             style={{ width: `${sidebarWidth}px` }}
-            className="border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0 overflow-hidden"
+            className="border-r border-[#e3e3e6] bg-[#f7f7f8] flex flex-col shrink-0 overflow-hidden print:hidden"
           >
             <div className="p-3 border-b border-[#e3e3e6] space-y-2">
               <div className="flex items-center justify-between">
@@ -1055,7 +1055,7 @@ export default function ObsidianWebPlatform() {
           {/* 좌우 경계선 마우스 드래그 리사이저 핸들 */}
           <div
             onMouseDown={() => setIsResizing(true)}
-            className={`w-1 -ml-0.5 cursor-col-resize z-20 hover:bg-sky-400 transition-colors select-none ${
+            className={`w-1 -ml-0.5 cursor-col-resize z-20 hover:bg-sky-400 transition-colors select-none print:hidden ${
               isResizing ? "bg-sky-500 shadow-xs" : "bg-transparent"
             }`}
             title="마우스로 드래그하여 사이드바 너비를 조절할 수 있습니다"
@@ -1064,9 +1064,9 @@ export default function ObsidianWebPlatform() {
       )}
 
       {/* 2. 우측 메인 작업 영역 */}
-      <section className="flex-1 flex flex-col min-w-0 bg-white">
+      <section className="flex-1 flex flex-col min-w-0 bg-white print:block print:w-full print:h-auto print:overflow-visible">
         {/* 상단 탭 바 */}
-        <div className="h-10 bg-[#ededf0] border-b border-[#e3e3e6] flex items-center px-1 gap-1 overflow-x-auto select-none">
+        <div className="h-10 bg-[#ededf0] border-b border-[#e3e3e6] flex items-center px-1 gap-1 overflow-x-auto select-none print:hidden">
           <button
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             title="사이드바 열기/닫기"
@@ -1135,7 +1135,7 @@ export default function ObsidianWebPlatform() {
         </div>
 
         {/* 탭 네비게이션 서브바 (뒤로가기, 앞으로가기, 경로, 다운로드, 로그아웃) */}
-        <div className="h-9 border-b border-[#e3e3e6] bg-white px-3 flex items-center justify-between text-xs text-slate-600">
+        <div className="h-9 border-b border-[#e3e3e6] bg-white px-3 flex items-center justify-between text-xs text-slate-600 print:hidden">
           <div className="flex items-center gap-1.5 truncate">
             <button
               onClick={handleGoBack}
@@ -1205,7 +1205,7 @@ export default function ObsidianWebPlatform() {
         </div>
 
         {/* 본문 콘텐츠 렌더링 영역 */}
-        <main className="flex-1 overflow-y-auto bg-white select-text">
+        <main className="flex-1 overflow-y-auto bg-white select-text print:block print:h-auto print:overflow-visible">
           {(!activeTab || !activeTab.path) && (
             <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none">
               <div className="max-w-xl w-full space-y-8">
@@ -1305,7 +1305,7 @@ export default function ObsidianWebPlatform() {
 
           {/* FGI 참가자 모집 실시간 통계 대시보드 뷰 */}
           {activeTab && activeTab.ext === "fgi-dashboard" && (
-            <div className="h-full w-full overflow-y-auto">
+            <div className="h-full w-full overflow-y-auto print:block print:h-auto print:overflow-visible">
               <FgiRecruitmentDashboard />
             </div>
           )}
