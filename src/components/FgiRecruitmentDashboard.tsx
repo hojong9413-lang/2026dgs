@@ -1035,8 +1035,8 @@ export default function FgiRecruitmentDashboard() {
               <span>1차 적격 후보만 집계 ({filteredRecords.length}명)</span>
             </label>
 
-            <span className="text-[11px] text-slate-500 font-medium px-1">
-              * 적격 표시는 신청자의 문항별 답변을 기준으로만 표시됩니다. 최종 적격은 대시보드에서 판단하지 않습니다.
+            <span className="text-xs sm:text-[13px] text-indigo-600 font-bold px-1.5">
+              * 적격 후보 표시는 신청자의 문항별 답변을 기준으로만 표시됩니다. 최종 적격은 대시보드에서 판단하지 않습니다.
             </span>
           </div>
         </div>
