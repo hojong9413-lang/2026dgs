@@ -798,32 +798,32 @@ export default function FgiRecruitmentDashboard() {
           </div>
         )}
 
-        {/* 2. 상단 4대 핵심 KPI 요약 카드 (가로 폭 비율 최적화로 줄바꿈 원천 방지) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[0.88fr_1.05fr_1.45fr_1.05fr] gap-3.5">
+        {/* 2. 상단 4대 핵심 KPI 요약 카드 (가로 폭 비율 최적화로 줄바꿈 원천 방지 + 컬러 액센트 디자인) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[0.88fr_1.05fr_1.45fr_1.05fr] gap-4">
           {/* 카드 1: 누적 응답자 수 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+          <div className="bg-gradient-to-br from-sky-50/90 via-white to-blue-50/60 border border-sky-200 border-t-4 border-t-sky-500 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+              <div className="flex items-center justify-between text-xs font-bold text-sky-900 mb-2.5 gap-1">
                 <span className="whitespace-nowrap">총 누적 신청(응답) 수</span>
-                <span className="w-7 h-7 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Users className="w-4 h-4" />
                 </span>
               </div>
-              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-                <span className="text-3xl font-extrabold text-slate-900 font-mono">
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap my-1">
+                <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">
                   {summaryMetrics.total}
                 </span>
-                <span className="text-sm font-bold text-slate-600">명</span>
+                <span className="text-base font-extrabold text-slate-700">명</span>
                 {summaryMetrics.todayCount > 0 && (
-                  <span className="ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0">
+                  <span className="ml-auto text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-sky-600 text-white shadow-2xs whitespace-nowrap shrink-0">
                     오늘 +{summaryMetrics.todayCount}명
                   </span>
                 )}
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 gap-2 whitespace-nowrap">
-              <span className="shrink-0">최근 신청 시각</span>
-              <span className="font-mono font-semibold text-slate-700 shrink-0">
+            <div className="mt-3 pt-2.5 border-t border-sky-200/70 flex items-center justify-between text-xs text-slate-600 gap-2 whitespace-nowrap bg-white/80 rounded-lg px-2.5 py-1.5 border">
+              <span className="font-semibold text-slate-500 shrink-0">최근 신청 시각</span>
+              <span className="font-mono font-bold text-sky-900 shrink-0">
                 {allRecords.length > 0
                   ? formatKoreanDateTime(
                       allRecords[allRecords.length - 1].timestamp
@@ -834,67 +834,67 @@ export default function FgiRecruitmentDashboard() {
           </div>
 
           {/* 카드 2: 1차 적격 후보자 풀 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+          <div className="bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/60 border border-emerald-200 border-t-4 border-t-emerald-500 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+              <div className="flex items-center justify-between text-xs font-bold text-emerald-950 mb-2.5 gap-1">
                 <span className="whitespace-nowrap">1차 스크리닝 적격 후보</span>
-                <span className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                   <UserCheck className="w-4 h-4" />
                 </span>
               </div>
-              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-                <span className="text-3xl font-extrabold text-emerald-600 font-mono">
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap my-1">
+                <span className="text-4xl font-black text-emerald-600 font-mono tracking-tight">
                   {summaryMetrics.eligible}
                 </span>
-                <span className="text-sm font-bold text-slate-600">명</span>
-                <span className="ml-auto text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0">
+                <span className="text-base font-extrabold text-emerald-900">명</span>
+                <span className="ml-auto text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-2xs whitespace-nowrap shrink-0">
                   적격률 {summaryMetrics.eligibleRate}%
                 </span>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500 whitespace-nowrap truncate">
+            <div className="mt-3 pt-2.5 border-t border-emerald-200/70 text-[11px] font-semibold text-emerald-900 whitespace-nowrap truncate bg-white/80 rounded-lg px-2.5 py-1.5 border">
               대면참석 · 배제업종 비해당 · 주의문항 통과
             </div>
           </div>
 
           {/* 카드 3: 타깃 그룹별 확보 현황 (G1~G4) */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-2">
+          <div className="bg-gradient-to-br from-indigo-50/90 via-white to-violet-50/60 border border-indigo-200 border-t-4 border-t-indigo-500 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs font-bold text-indigo-950 mb-2.5 gap-2">
               <span className="whitespace-nowrap">타깃 그룹별 후보 분포</span>
-              <span className="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0">
+              <span className="text-xs font-mono text-white bg-indigo-600 px-2.5 py-0.5 rounded-full font-extrabold whitespace-nowrap shrink-0 shadow-2xs">
                 G1 ~ G4
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">
+            <div className="grid grid-cols-2 gap-2 mt-0.5">
+              <div className="bg-white/95 rounded-xl px-3 py-2 border border-sky-200 shadow-2xs flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-bold text-sky-900 shrink-0">
                   G1 핫(리워드)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
+                <span className="text-base font-black font-mono text-sky-600 shrink-0">
                   {summaryMetrics.g1Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">
+              <div className="bg-white/95 rounded-xl px-3 py-2 border border-indigo-200 shadow-2xs flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-bold text-indigo-900 shrink-0">
                   G2 핫(콘텐츠)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
+                <span className="text-base font-black font-mono text-indigo-600 shrink-0">
                   {summaryMetrics.g2Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">
+              <div className="bg-white/95 rounded-xl px-3 py-2 border border-amber-200 shadow-2xs flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-bold text-amber-900 shrink-0">
                   G3 콜드(휴면)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
+                <span className="text-base font-black font-mono text-amber-600 shrink-0">
                   {summaryMetrics.g3Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
-                <span className="text-xs font-semibold text-slate-600 shrink-0">
+              <div className="bg-white/95 rounded-xl px-3 py-2 border border-emerald-200 shadow-2xs flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-bold text-emerald-900 shrink-0">
                   G4 잠재(비회원)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
+                <span className="text-base font-black font-mono text-emerald-600 shrink-0">
                   {summaryMetrics.g4Count}명
                 </span>
               </div>
@@ -902,11 +902,13 @@ export default function FgiRecruitmentDashboard() {
           </div>
 
           {/* 카드 4: 일자별 유입 & 모집 일정 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+          <div className="bg-gradient-to-br from-purple-50/90 via-white to-fuchsia-50/60 border border-purple-200 border-t-4 border-t-purple-500 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+              <div className="flex items-center justify-between text-xs font-bold text-purple-950 mb-2 gap-1">
                 <span className="whitespace-nowrap">FGI 세션별 참석 가능 풀</span>
-                <Calendar className="w-4 h-4 text-purple-600 shrink-0" />
+                <span className="w-7 h-7 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Calendar className="w-3.5 h-3.5" />
+                </span>
               </div>
               <div className="space-y-1.5 mt-1">
                 {[
@@ -924,14 +926,14 @@ export default function FgiRecruitmentDashboard() {
                   return (
                     <div
                       key={sess.short}
-                      className="flex items-center justify-between text-xs gap-2 whitespace-nowrap"
+                      className="flex items-center justify-between text-xs gap-2 whitespace-nowrap bg-white/85 border border-purple-100 rounded-lg px-2.5 py-1"
                     >
-                      <span className="text-slate-600 font-medium shrink-0">
+                      <span className="text-slate-700 font-bold shrink-0">
                         {sess.short}
                       </span>
-                      <span className="font-mono font-bold text-purple-700 bg-purple-50 px-2 py-0.2 rounded shrink-0">
+                      <span className="font-mono font-extrabold text-purple-700 bg-purple-100/80 px-2 py-0.2 rounded shrink-0">
                         {totalCnt}명{" "}
-                        <span className="text-[11px] font-normal text-purple-500">
+                        <span className="text-[11px] font-semibold text-purple-600">
                           (적격 {eligCnt})
                         </span>
                       </span>
@@ -943,79 +945,119 @@ export default function FgiRecruitmentDashboard() {
           </div>
         </div>
 
-        {/* 3. 서브 탭 & 필터 바 */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <div className="flex flex-wrap items-center gap-2">
+        {/* 3. 서브 탭 & 필터 바 (시선 집중형 네비게이션 독 디자인) */}
+        <div className="bg-gradient-to-r from-slate-100/95 via-indigo-50/70 to-sky-50/80 border-2 border-indigo-200/80 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3 print:hidden">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setActiveSubTab("overview")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
                 activeSubTab === "overview"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
+                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-sky-400 hover:bg-sky-50/50 hover:text-sky-950 hover:-translate-y-0.5"
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Ⅰ. 유입경로 · 인구통계 · 참석시간</span>
+              <span
+                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
+                  activeSubTab === "overview"
+                    ? "bg-white/20 text-white"
+                    : "bg-sky-100 text-sky-700"
+                }`}
+              >
+                Ⅰ
+              </span>
+              <span>유입경로 · 인구통계 · 참석시간</span>
             </button>
 
             <button
               onClick={() => setActiveSubTab("service")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
                 activeSubTab === "service"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
+                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-950 hover:-translate-y-0.5"
               }`}
             >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span>Ⅱ. 대구석 이용 행태 통계</span>
+              <span
+                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
+                  activeSubTab === "service"
+                    ? "bg-white/20 text-white"
+                    : "bg-indigo-100 text-indigo-700"
+                }`}
+              >
+                Ⅱ
+              </span>
+              <span>대구석 이용 행태 통계</span>
             </button>
 
             <button
               onClick={() => setActiveSubTab("travel")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
                 activeSubTab === "travel"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
+                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-violet-400 hover:bg-violet-50/50 hover:text-violet-950 hover:-translate-y-0.5"
               }`}
             >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Ⅲ. 국내여행 · AI 활용 통계</span>
+              <span
+                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
+                  activeSubTab === "travel"
+                    ? "bg-white/20 text-white"
+                    : "bg-violet-100 text-violet-700"
+                }`}
+              >
+                Ⅲ
+              </span>
+              <span>국내여행 · AI 활용 통계</span>
             </button>
 
             <button
               onClick={() => setActiveSubTab("screening")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
                 activeSubTab === "screening"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
+                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-emerald-400 hover:bg-emerald-50/50 hover:text-emerald-950 hover:-translate-y-0.5"
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Ⅳ. 참가 자격 · 스크리닝 통계</span>
+              <span
+                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
+                  activeSubTab === "screening"
+                    ? "bg-white/20 text-white"
+                    : "bg-emerald-100 text-emerald-700"
+                }`}
+              >
+                Ⅳ
+              </span>
+              <span>참가 자격 · 스크리닝 통계</span>
             </button>
 
             <button
               onClick={() => setActiveSubTab("voices")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
                 activeSubTab === "voices"
-                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
+                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-950 hover:-translate-y-0.5"
               }`}
             >
-              <MessageSquareQuote className="w-3.5 h-3.5" />
-              <span>Ⅴ. 신청자 익명 의견(VOC) & 응답 목록</span>
+              <span
+                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
+                  activeSubTab === "voices"
+                    ? "bg-white/20 text-white"
+                    : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                Ⅴ
+              </span>
+              <span>신청자 익명 의견(VOC) & 응답 목록</span>
             </button>
           </div>
 
-          {/* 우측 필터 (전체 vs 적격 후보자만 / 그룹 필터) */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-slate-500 font-medium">그룹:</span>
+          {/* 하단 필터 바 (전체 vs 적격 후보자만 / 그룹 필터) */}
+          <div className="pt-2.5 border-t border-indigo-200/60 flex flex-wrap items-center gap-2.5">
+            <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs shadow-2xs">
+              <Filter className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="text-slate-600 font-bold">그룹:</span>
               <select
                 value={groupFilter}
                 onChange={(e) => setGroupFilter(e.target.value)}
-                className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                className="bg-transparent font-extrabold text-slate-900 focus:outline-none cursor-pointer"
               >
                 <option value="ALL">전체 그룹 ({allRecords.length}명)</option>
                 <option value="G1">G1 핫·리워드형</option>
@@ -1025,17 +1067,17 @@ export default function FgiRecruitmentDashboard() {
               </select>
             </div>
 
-            <label className="inline-flex items-center gap-1.5 bg-emerald-50/70 border border-emerald-200 text-emerald-900 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer hover:bg-emerald-100/70 transition-colors">
+            <label className="inline-flex items-center gap-1.5 bg-emerald-600/10 border-2 border-emerald-400 text-emerald-950 rounded-xl px-3.5 py-1.5 text-xs font-extrabold cursor-pointer hover:bg-emerald-600/20 transition-colors shadow-2xs">
               <input
                 type="checkbox"
                 checked={onlyEligible}
                 onChange={(e) => setOnlyEligible(e.target.checked)}
-                className="rounded border-emerald-400 text-emerald-600 focus:ring-emerald-500"
+                className="rounded border-emerald-500 text-emerald-600 focus:ring-emerald-500"
               />
               <span>1차 적격 후보만 집계 ({filteredRecords.length}명)</span>
             </label>
 
-            <span className="text-xs sm:text-[13px] text-indigo-600 font-bold px-1.5">
+            <span className="text-xs sm:text-[13px] text-indigo-700 font-extrabold px-1.5">
               * 적격 후보 표시는 신청자의 문항별 답변을 기준으로만 표시됩니다. 최종 적격은 대시보드에서 판단하지 않습니다.
             </span>
           </div>
