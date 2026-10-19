@@ -1236,7 +1236,7 @@ export default function ObsidianWebPlatform() {
                         <span>50_FGI 참가자 모집 실시간 통계 대시보드 (10.20~10.30)</span>
                       </div>
                       <div className="text-xs text-sky-800/80">
-                        구글 설문폼 응답 실시간 연동 · 개인정보 비식별화 · 그룹별(G1~G4) 적격 후보 및 통계 차트
+                        구글 설문폼 응답 실시간 연동 · 개인정보 데이터 연동 원천 차단 · 그룹별(G1~G4) 적격 후보 및 통계 차트
                       </div>
                     </div>
                     <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-sky-600 text-white shrink-0 ml-3 shadow-2xs group-hover:brightness-110 flex items-center gap-1">
