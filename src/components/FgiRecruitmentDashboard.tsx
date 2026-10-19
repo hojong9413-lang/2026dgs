@@ -657,7 +657,7 @@ export default function FgiRecruitmentDashboard() {
         : "없다 (적격)"
     );
     const memberStatus = countSingleChoice(targetList, (r) =>
-      r.isMember ? `구석구석 회원 여부: ${r.isMember}` : ""
+      r.isMember ? `대구석 회원 여부: ${r.isMember}` : ""
     );
     const screeningBreakdown = countMultiChoice(targetList, (r) =>
       r.isEligible ? "1차 적격 후보 (통과)" : r.excludeReasons.join(", ")
@@ -729,7 +729,7 @@ export default function FgiRecruitmentDashboard() {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              FGI(집단 심층 인터뷰) 참가자 모집 실시간 통계 상황판
+              FGI(집단 심층 인터뷰) 참가자 모집 실시간 통계 대시보드
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
               모집 기간: <strong className="text-slate-700">2026. 10. 20.(화) ~ 10. 30.(금)</strong>{" "}
@@ -967,7 +967,7 @@ export default function FgiRecruitmentDashboard() {
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Ⅱ. 구석구석 이용 행태 통계</span>
+              <span>Ⅱ. 대구석 이용 행태 통계</span>
             </button>
 
             <button
@@ -1032,8 +1032,12 @@ export default function FgiRecruitmentDashboard() {
                 onChange={(e) => setOnlyEligible(e.target.checked)}
                 className="rounded border-emerald-400 text-emerald-600 focus:ring-emerald-500"
               />
-              <span>1차 적격 후보만 집계 ({ filteredRecords.length }명)</span>
+              <span>1차 적격 후보만 집계 ({filteredRecords.length}명)</span>
             </label>
+
+            <span className="text-[11px] text-slate-500 font-medium px-1">
+              * 적격 표시는 신청자의 문항별 답변을 기준으로만 표시됩니다. 최종 적격은 대시보드에서 판단하지 않습니다.
+            </span>
           </div>
         </div>
 
@@ -1152,7 +1156,7 @@ export default function FgiRecruitmentDashboard() {
 
             <HorizontalStatCard
               codeBadge="Ⅱ-6"
-              title="구석구석 주 이용 목적"
+              title="대구석 주 이용 목적"
               subtitle="정보 탐색형(G2) vs 리워드·혜택형(G1) 분류 핵심 지표"
               items={stats.mainPurposes}
               barColor="bg-purple-600"
@@ -1208,7 +1212,7 @@ export default function FgiRecruitmentDashboard() {
 
             <HorizontalStatCard
               codeBadge="Ⅱ-10"
-              title="[잠재유저] 구석구석 메인 화면 인지 여부"
+              title="[잠재유저] 대구석 메인 화면 인지 여부"
               subtitle="비회원·미이용자의 브랜드/화면 사전 인지 수준"
               items={stats.mainScreens}
               barColor="bg-violet-600"
@@ -1289,7 +1293,7 @@ export default function FgiRecruitmentDashboard() {
             <HorizontalStatCard
               codeBadge="Ⅳ-1"
               title="본인·가족 배제 대상 기관·업종 종사 여부"
-              subtitle="한국관광공사, 구석구석 협력사, 여행업, 광고·마케팅, 조사업, 언론 종사자 배제"
+              subtitle="한국관광공사, 대구석 협력사, 여행업, 광고·마케팅, 조사업, 언론 종사자 배제"
               items={stats.jobExcludeStats}
               barColor="bg-sky-600"
             />
@@ -1305,7 +1309,7 @@ export default function FgiRecruitmentDashboard() {
             <HorizontalStatCard
               codeBadge="Ⅳ-3"
               title="최근 6개월 내 한국관광공사 좌담회·FGI 참여 이력"
-              subtitle="구석구석·가볼래-터·SNS 관련 좌담회 중복 참여자 배제"
+              subtitle="대구석·가볼래-터·SNS 관련 좌담회 중복 참여자 배제"
               items={stats.pastFgiStats}
               barColor="bg-purple-600"
             />
@@ -1313,7 +1317,7 @@ export default function FgiRecruitmentDashboard() {
             <HorizontalStatCard
               codeBadge="Ⅴ-5"
               title="현재 대한민국 구석구석 회원 가입 여부"
-              subtitle="신청자의 현재 구석구석 회원/비회원 응답 분포"
+              subtitle="신청자의 현재 대구석 회원/비회원 응답 분포"
               items={stats.memberStatus}
               barColor="bg-teal-600"
             />

@@ -431,7 +431,7 @@ export default function ObsidianWebPlatform() {
   useEffect(() => {
     if (!isAuthenticated) return;
     if (!activeTab || !activeTab.path) return;
-    if (activeTab.ext === "calendar") return;
+    if (activeTab.ext === "calendar" || activeTab.ext === "fgi-dashboard") return;
     if (fileData[activeTab.path]) return;
 
     async function loadFileContent(filePath: string) {
@@ -1126,7 +1126,7 @@ export default function ObsidianWebPlatform() {
 
           <button
             onClick={handleOpenFgiDashboard}
-            title="50_FGI 참가자 모집 실시간 통계 상황판 열기"
+            title="50_FGI 참가자 모집 실시간 통계 대시보드 열기"
             className="p-1 text-sky-700 hover:text-sky-900 hover:bg-sky-100 rounded transition-colors ml-1 flex items-center gap-1 text-xs font-semibold px-2 cursor-pointer border border-sky-200/80 bg-sky-50/70 shadow-2xs"
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -1674,7 +1674,10 @@ export default function ObsidianWebPlatform() {
           {activeTab &&
             activeTab.path &&
             !loadingFile &&
+            !currentDetail?.isText &&
             ![
+              "calendar",
+              "fgi-dashboard",
               ".md",
               ".pdf",
               ".m4a",
