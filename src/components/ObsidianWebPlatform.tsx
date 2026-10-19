@@ -1207,8 +1207,8 @@ export default function ObsidianWebPlatform() {
         {/* 본문 콘텐츠 렌더링 영역 */}
         <main className="flex-1 overflow-y-auto bg-white select-text print:block print:h-auto print:overflow-visible">
           {(!activeTab || !activeTab.path) && (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none">
-              <div className="max-w-xl w-full space-y-8">
+            <div className="h-full flex flex-col items-center justify-center p-6 sm:p-8 text-center select-none overflow-y-auto">
+              <div className="max-w-3xl lg:max-w-4xl w-full space-y-8 my-auto">
                 {/* 큼직한 상단 아이콘 */}
                 <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
                   <HardDrive className="w-10 h-10" />
