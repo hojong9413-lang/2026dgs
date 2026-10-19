@@ -431,6 +431,9 @@ export default function FgiRecruitmentDashboard() {
   >("overview");
   const [groupFilter, setGroupFilter] = useState<string>("ALL");
 
+  // 그룹 분류 기준 안내 모달 상태
+  const [isGroupGuideOpen, setIsGroupGuideOpen] = useState(false);
+
   // 연동 설정 모달 상태
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [scriptUrlInput, setScriptUrlInput] = useState("");
@@ -861,9 +864,19 @@ export default function FgiRecruitmentDashboard() {
           <div className="bg-gradient-to-br from-indigo-50/90 via-white to-violet-50/60 border border-indigo-200 border-t-4 border-t-indigo-500 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs font-bold text-indigo-950 mb-2.5 gap-2">
               <span className="whitespace-nowrap">타깃 그룹별 후보 분포</span>
-              <span className="text-xs font-mono text-white bg-indigo-600 px-2.5 py-0.5 rounded-full font-extrabold whitespace-nowrap shrink-0 shadow-2xs">
-                G1 ~ G4
-              </span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsGroupGuideOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-extrabold text-indigo-700 bg-white hover:bg-indigo-600 hover:text-white border border-indigo-300 px-2.5 py-0.5 rounded-full shadow-2xs transition-all cursor-pointer whitespace-nowrap print:hidden"
+                  title="G1~G4 그룹 분류 기준 상세 보기"
+                >
+                  <span>분류 기준 보기</span>
+                </button>
+                <span className="text-xs font-mono text-white bg-indigo-600 px-2.5 py-0.5 rounded-full font-extrabold whitespace-nowrap shrink-0 shadow-2xs">
+                  G1 ~ G4
+                </span>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-0.5">
               <div className="bg-white/95 rounded-xl px-3 py-2 border border-sky-200 shadow-2xs flex items-center justify-between gap-2 whitespace-nowrap">
@@ -1532,7 +1545,210 @@ export default function FgiRecruitmentDashboard() {
         )}
       </div>
 
-      {/* 5. 구글 시트 Apps Script 연동 설정 모달 */}
+      {/* 5. 타깃 그룹(G1~G4) 분류 기준 안내 팝업 모달 */}
+      {isGroupGuideOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 print:hidden"
+          onClick={() => setIsGroupGuideOpen(false)}
+        >
+          <div
+            className="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 모달 상단 고정 헤더 */}
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-4 bg-gradient-to-r from-indigo-50/90 via-white to-sky-50/90 shrink-0">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">
+                    G1 ~ G4
+                  </span>
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    타깃 그룹별 후보(G1~G4) 자동 분류 기준 안내
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-[13px] text-indigo-700 font-extrabold pt-0.5">
+                  * 그룹별 후보 분류 표시는 신청자의 문항별 답변을 기준으로만 표시됩니다. 최종 그룹 확정 및 적격은 대시보드에서 판단하지 않습니다.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsGroupGuideOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 모달 본문 (스크롤 영역) */}
+            <div className="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm text-slate-700">
+              {/* 상단 보충 설명 박스 */}
+              <div className="bg-indigo-50/70 border border-indigo-200 rounded-xl p-4 text-xs sm:text-[13px] text-slate-700 leading-relaxed">
+                현재 대시보드에서 신청자의 설문 답변만으로{" "}
+                <strong className="text-indigo-900">G1 ~ G4 4개 그룹</strong>을 자동 분류하는 근거 기준은{" "}
+                <strong className="text-indigo-900">2개 핵심 문항(Ⅱ-1 + Ⅱ-6)의 조합</strong>입니다.
+                실제 최종 참여자 선정 시에는 발주처(한국관광공사)의 대구석 회원 DB 및 이용 로그 대조 검증을 거쳐 확정됩니다.
+              </div>
+
+              {/* 1단계 */}
+              <div className="space-y-2.5">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md bg-sky-600 text-white text-xs font-mono">
+                    1단계
+                  </span>
+                  <span>
+                    <code className="font-mono text-sky-700">Ⅱ-1. 대구석 이용 경험</code> 문항으로 대분류 (핫 / 콜드 / 잠재)
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-600">
+                  설문 <strong>「Ⅱ-1. 귀하의 ‘대한민국 구석구석’ 이용 경험과 가장 가까운 것을 선택해 주세요.」</strong>의 4개 보기 중 무엇을 선택했는지에 따라 1차로 갈라집니다.
+                </p>
+
+                <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                  <table className="w-full text-xs text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 border-b border-slate-200 text-slate-800 font-extrabold">
+                        <th className="py-2.5 px-3.5 w-3/5">Ⅱ-1 신청자 선택 답변</th>
+                        <th className="py-2.5 px-3.5 w-2/5">1차 분류 결과</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      <tr className="bg-white">
+                        <td className="py-3 px-3.5 font-semibold text-slate-800">
+                          ① 회원이며, 최근 3개월 이내에 이용한 적이 있다.
+                        </td>
+                        <td className="py-3 px-3.5">
+                          <span className="inline-block font-extrabold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">
+                            핫 유저 (G1 또는 G2)
+                          </span>
+                          <div className="text-[11px] text-slate-500 mt-1">
+                            → 아래 2단계(Ⅱ-6) 답변으로 G1 / G2 세분화
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="bg-amber-50/30">
+                        <td className="py-3 px-3.5 font-semibold text-slate-800">
+                          ② 회원이지만, 최근 3개월 동안은 거의 또는 전혀 이용하지 않았다.
+                        </td>
+                        <td className="py-3 px-3.5">
+                          <span className="inline-block font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                            G3 콜드(휴면)
+                          </span>
+                          <span className="text-slate-600 ml-1.5 font-medium">
+                            즉시 분류
+                          </span>
+                        </td>
+                      </tr>
+                      <tr className="bg-emerald-50/30">
+                        <td className="py-3 px-3.5 font-semibold text-slate-800 space-y-1">
+                          <div>③ 회원은 아니지만, 최근 1년 이내에 웹사이트나 앱을 이용해 본 적이 있다.</div>
+                          <div>④ 이용하거나 본 적이 없다. / 이용한 적이 있는지 잘 모르겠다.</div>
+                        </td>
+                        <td className="py-3 px-3.5">
+                          <span className="inline-block font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                            G4 잠재(비회원)
+                          </span>
+                          <span className="text-slate-600 ml-1.5 font-medium">
+                            즉시 분류
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 2단계 */}
+              <div className="space-y-2.5">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md bg-indigo-600 text-white text-xs font-mono">
+                    2단계
+                  </span>
+                  <span>
+                    핫 유저(①번 선택자) 중에서 <code className="font-mono text-indigo-700">G1</code> vs <code className="font-mono text-indigo-700">G2</code> 세분화 기준
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-600">
+                  <code className="font-mono">Ⅱ-1</code>에서 ①번(최근 3개월 내 이용)을 선택한 응답자는 이어서 나오는{" "}
+                  <strong>「Ⅱ-6. 귀하가 ‘대한민국 구석구석’을 이용하는 가장 주된 목적 1가지만 선택해 주세요.」</strong> 답변으로 <strong>G1</strong>과 <strong>G2</strong>를 나눕니다.
+                </p>
+
+                <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                  <table className="w-full text-xs text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 border-b border-slate-200 text-slate-800 font-extrabold">
+                        <th className="py-2.5 px-3.5 w-3/5">Ⅱ-6 신청자 선택 답변 (주 이용 목적 1가지)</th>
+                        <th className="py-2.5 px-3.5 w-2/5">최종 그룹 분류</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      <tr className="bg-sky-50/30">
+                        <td className="py-3 px-3.5 font-semibold text-slate-800 space-y-1">
+                          <div>• 이벤트·미션 참여 및 경품·보상을 받기 위해 <span className="text-slate-500 font-normal">(이벤트·보상 목적)</span></div>
+                          <div>• 디지털 관광주민증·반값여행 등 할인·혜택 서비스를 이용하기 위해 <span className="text-slate-500 font-normal">(할인·혜택 목적)</span></div>
+                        </td>
+                        <td className="py-3 px-3.5">
+                          <span className="inline-block font-extrabold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded-lg">
+                            G1 핫(리워드)
+                          </span>
+                        </td>
+                      </tr>
+                      <tr className="bg-indigo-50/30">
+                        <td className="py-3 px-3.5 font-semibold text-slate-800 space-y-1">
+                          <div>• 여행지·여행 코스 등 여행 계획에 필요한 정보를 얻기 위해 <span className="text-slate-500 font-normal">(정보 탐색 목적)</span></div>
+                          <div>• 읽을거리·추천 콘텐츠를 둘러보기 위해 <span className="text-slate-500 font-normal">(추천 콘텐츠 열람 목적)</span></div>
+                        </td>
+                        <td className="py-3 px-3.5">
+                          <span className="inline-block font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg">
+                            G2 핫(콘텐츠)
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 4개 그룹 요약 카드 */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                  ■ G1 ~ G4 그룹별 정의 요약
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div className="p-3 rounded-xl border border-sky-200 bg-sky-50/50">
+                    <div className="font-extrabold text-sky-900">G1 핫 유저 (리워드·혜택형)</div>
+                    <div className="text-slate-600 mt-0.5">최근 3개월 내 활발 이용 + 이벤트·미션·관광주민증·반값여행 등 보상/혜택 중심 이용자</div>
+                  </div>
+                  <div className="p-3 rounded-xl border border-indigo-200 bg-indigo-50/50">
+                    <div className="font-extrabold text-indigo-900">G2 핫 유저 (콘텐츠·정보탐색형)</div>
+                    <div className="text-slate-600 mt-0.5">최근 3개월 내 활발 이용 + 여행지 정보·여행코스·읽을거리 등 순수 콘텐츠 탐색 중심 이용자</div>
+                  </div>
+                  <div className="p-3 rounded-xl border border-amber-200 bg-amber-50/50">
+                    <div className="font-extrabold text-amber-900">G3 콜드 유저 (휴면·이탈 회원)</div>
+                    <div className="text-slate-600 mt-0.5">대구석 가입 회원이지만 최근 3개월 동안 거의 또는 전혀 이용하지 않은 휴면·이탈층</div>
+                  </div>
+                  <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50">
+                    <div className="font-extrabold text-emerald-900">G4 잠재 유저 (비회원·미이용자)</div>
+                    <div className="text-slate-600 mt-0.5">대구석 비회원 또는 미이용자 중 국내여행 및 여행 정보 탐색 니즈가 있는 잠재 고객층</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 모달 하단 닫기 바 */}
+            <div className="border-t border-slate-200 px-6 py-3.5 bg-slate-50 flex items-center justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsGroupGuideOpen(false)}
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-xs cursor-pointer transition-colors"
+              >
+                확인 및 닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. 구글 시트 Apps Script 연동 설정 모달 */}
       {isConfigOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-5">
