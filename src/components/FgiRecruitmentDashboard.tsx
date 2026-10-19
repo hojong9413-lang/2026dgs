@@ -704,7 +704,7 @@ export default function FgiRecruitmentDashboard() {
         {/* 1. 상단 헤더 & 컨트롤 바 */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
           <div className="space-y-2 min-w-0">
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 overflow-x-auto">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0">
                 <BarChart3 className="w-3.5 h-3.5" />
                 <span>2026 대한민국 구석구석 FGI</span>
@@ -725,8 +725,8 @@ export default function FgiRecruitmentDashboard() {
                 </span>
               )}
 
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 whitespace-nowrap shrink-0">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-500" />
                 <span>개인정보(성명·연락처·이메일) 데이터 연동 원천 차단</span>
               </span>
             </div>
