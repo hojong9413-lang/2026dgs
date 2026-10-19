@@ -427,7 +427,7 @@ export default function FgiRecruitmentDashboard() {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [onlyEligible, setOnlyEligible] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<
-    "overview" | "service" | "travel" | "voices"
+    "overview" | "service" | "travel" | "screening" | "voices"
   >("overview");
   const [groupFilter, setGroupFilter] = useState<string>("ALL");
 
@@ -618,7 +618,11 @@ export default function FgiRecruitmentDashboard() {
     ]);
     const mainPurposes = countSingleChoice(targetList, (r) => r.mainPurpose);
     const pushTypes = countSingleChoice(targetList, (r) => r.push);
+    const badgeRanks = countSingleChoice(targetList, (r) => r.badgeRank);
     const stopReasons = countMultiChoice(targetList, (r) => r.stopReason);
+    const mainScreens = countSingleChoice(targetList, (r) => r.mainScreen);
+    const searchFreqs = countSingleChoice(targetList, (r) => r.searchFreq);
+    const otherApps = countMultiChoice(targetList, (r) => r.otherApps);
 
     const tripCounts = countSingleChoice(targetList, (r) => r.tripCount);
     const tripDists = countSingleChoice(targetList, (r) => r.tripDist);
@@ -636,6 +640,29 @@ export default function FgiRecruitmentDashboard() {
     const genAiTypes = countSingleChoice(targetList, (r) => r.genAi);
     const stampRewards = countSingleChoice(targetList, (r) => r.stampReward);
 
+    // Ⅳ. 참가 자격 및 스크리닝 통계 (Ⅳ-1, Ⅳ-2, Ⅳ-3, Ⅴ-5)
+    const jobExcludeStats = countSingleChoice(targetList, (r) =>
+      r.excludeReasons.includes("배제 업종 해당")
+        ? "배제 대상 기관·업종 종사 (스크리닝 제외)"
+        : "해당 없음 (적격)"
+    );
+    const attentionStats = countSingleChoice(targetList, (r) =>
+      r.excludeReasons.includes("주의문항 오답")
+        ? "오답 또는 미선택 (스크리닝 제외)"
+        : "'3번' 정상 선택 (성실 응답 통과)"
+    );
+    const pastFgiStats = countSingleChoice(targetList, (r) =>
+      r.excludeReasons.includes("최근 좌담회 이력")
+        ? "참여 이력 있음 (중복 참여 제외)"
+        : "없다 (적격)"
+    );
+    const memberStatus = countSingleChoice(targetList, (r) =>
+      r.isMember ? `구석구석 회원 여부: ${r.isMember}` : ""
+    );
+    const screeningBreakdown = countMultiChoice(targetList, (r) =>
+      r.isEligible ? "1차 적격 후보 (통과)" : r.excludeReasons.join(", ")
+    );
+
     return {
       channels,
       ageGroups,
@@ -650,12 +677,21 @@ export default function FgiRecruitmentDashboard() {
       services,
       mainPurposes,
       pushTypes,
+      badgeRanks,
       stopReasons,
+      mainScreens,
+      searchFreqs,
+      otherApps,
       tripCounts,
       tripDists,
       infoSources,
       genAiTypes,
       stampRewards,
+      jobExcludeStats,
+      attentionStats,
+      pastFgiStats,
+      memberStatus,
+      screeningBreakdown,
     };
   }, [filteredRecords]);
 
@@ -663,10 +699,10 @@ export default function FgiRecruitmentDashboard() {
     <div className="min-h-full bg-[#f8fafc] text-slate-900 p-4 sm:p-8 font-sans select-text print:bg-white print:p-0">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* 1. 상단 헤더 & 컨트롤 바 */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+          <div className="space-y-2 min-w-0">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 overflow-x-auto">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0">
                 <BarChart3 className="w-3.5 h-3.5" />
                 <span>2026 대한민국 구석구석 FGI</span>
               </span>
@@ -674,19 +710,19 @@ export default function FgiRecruitmentDashboard() {
               {data?.isPreview ? (
                 <button
                   onClick={() => setIsConfigOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  <span>시트 실시간 연동 설정 필요 (현재 테스트 2건 미리보기)</span>
+                  <span>시트 실시간 연동 설정 필요</span>
                 </button>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span>Google Sheets 실시간 연동중</span>
                 </span>
               )}
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-700 border border-slate-200 whitespace-nowrap shrink-0">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>개인정보(성명·연락처·이메일) 원천 비식별화</span>
               </span>
@@ -704,7 +740,7 @@ export default function FgiRecruitmentDashboard() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <div className="flex items-center gap-2 shrink-0 print:hidden">
             <label className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-100">
               <input
                 type="checkbox"
@@ -762,30 +798,32 @@ export default function FgiRecruitmentDashboard() {
           </div>
         )}
 
-        {/* 2. 상단 4대 핵심 KPI 요약 카드 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 2. 상단 4대 핵심 KPI 요약 카드 (가로 폭 비율 최적화로 줄바꿈 원천 방지) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[0.88fr_1.05fr_1.45fr_1.05fr] gap-3.5">
           {/* 카드 1: 누적 응답자 수 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
-              <span>총 누적 신청(응답) 수</span>
-              <span className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900 font-mono">
-                {summaryMetrics.total}
-              </span>
-              <span className="text-sm font-bold text-slate-600">명</span>
-              {summaryMetrics.todayCount > 0 && (
-                <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                  오늘 +{summaryMetrics.todayCount}명
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+                <span className="whitespace-nowrap">총 누적 신청(응답) 수</span>
+                <span className="w-7 h-7 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4" />
                 </span>
-              )}
+              </div>
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="text-3xl font-extrabold text-slate-900 font-mono">
+                  {summaryMetrics.total}
+                </span>
+                <span className="text-sm font-bold text-slate-600">명</span>
+                {summaryMetrics.todayCount > 0 && (
+                  <span className="ml-auto text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0">
+                    오늘 +{summaryMetrics.todayCount}명
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span>최근 신청 시각</span>
-              <span className="font-mono font-semibold text-slate-700">
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 gap-2 whitespace-nowrap">
+              <span className="shrink-0">최근 신청 시각</span>
+              <span className="font-mono font-semibold text-slate-700 shrink-0">
                 {allRecords.length > 0
                   ? formatKoreanDateTime(
                       allRecords[allRecords.length - 1].timestamp
@@ -796,65 +834,67 @@ export default function FgiRecruitmentDashboard() {
           </div>
 
           {/* 카드 2: 1차 적격 후보자 풀 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
-              <span>1차 스크리닝 적격 후보</span>
-              <span className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <UserCheck className="w-4 h-4" />
-              </span>
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+                <span className="whitespace-nowrap">1차 스크리닝 적격 후보</span>
+                <span className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <UserCheck className="w-4 h-4" />
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                <span className="text-3xl font-extrabold text-emerald-600 font-mono">
+                  {summaryMetrics.eligible}
+                </span>
+                <span className="text-sm font-bold text-slate-600">명</span>
+                <span className="ml-auto text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0">
+                  적격률 {summaryMetrics.eligibleRate}%
+                </span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-emerald-600 font-mono">
-                {summaryMetrics.eligible}
-              </span>
-              <span className="text-sm font-bold text-slate-600">명</span>
-              <span className="ml-auto text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                적격률 {summaryMetrics.eligibleRate}%
-              </span>
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-              대면참석 가능 · 배제업종 비해당 · 주의문항(3번) 통과자
+            <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500 whitespace-nowrap truncate">
+              대면참석 · 배제업종 비해당 · 주의문항 통과
             </div>
           </div>
 
           {/* 카드 3: 타깃 그룹별 확보 현황 (G1~G4) */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
-              <span>타깃 그룹별 후보 분포</span>
-              <span className="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-2">
+              <span className="whitespace-nowrap">타깃 그룹별 후보 분포</span>
+              <span className="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded font-bold whitespace-nowrap shrink-0">
                 G1 ~ G4
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-1">
-              <div className="bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200/70 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-slate-600">
+              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-semibold text-slate-600 shrink-0">
                   G1 핫(리워드)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900">
+                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
                   {summaryMetrics.g1Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200/70 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-slate-600">
+              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-semibold text-slate-600 shrink-0">
                   G2 핫(콘텐츠)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900">
+                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
                   {summaryMetrics.g2Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200/70 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-slate-600">
+              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-semibold text-slate-600 shrink-0">
                   G3 콜드(휴면)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900">
+                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
                   {summaryMetrics.g3Count}명
                 </span>
               </div>
-              <div className="bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200/70 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-slate-600">
+              <div className="bg-slate-50 rounded-lg px-2.5 py-2 border border-slate-200/70 flex items-center justify-between gap-2 whitespace-nowrap">
+                <span className="text-xs font-semibold text-slate-600 shrink-0">
                   G4 잠재(비회원)
                 </span>
-                <span className="text-sm font-extrabold font-mono text-slate-900">
+                <span className="text-sm font-extrabold font-mono text-slate-900 shrink-0">
                   {summaryMetrics.g4Count}명
                 </span>
               </div>
@@ -862,11 +902,11 @@ export default function FgiRecruitmentDashboard() {
           </div>
 
           {/* 카드 4: 일자별 유입 & 모집 일정 */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
-                <span>FGI 세션별 참석 가능 풀</span>
-                <Calendar className="w-4 h-4 text-purple-600" />
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2 gap-1">
+                <span className="whitespace-nowrap">FGI 세션별 참석 가능 풀</span>
+                <Calendar className="w-4 h-4 text-purple-600 shrink-0" />
               </div>
               <div className="space-y-1.5 mt-1">
                 {[
@@ -884,12 +924,12 @@ export default function FgiRecruitmentDashboard() {
                   return (
                     <div
                       key={sess.short}
-                      className="flex items-center justify-between text-xs"
+                      className="flex items-center justify-between text-xs gap-2 whitespace-nowrap"
                     >
-                      <span className="text-slate-600 font-medium">
+                      <span className="text-slate-600 font-medium shrink-0">
                         {sess.short}
                       </span>
-                      <span className="font-mono font-bold text-purple-700 bg-purple-50 px-2 py-0.2 rounded">
+                      <span className="font-mono font-bold text-purple-700 bg-purple-50 px-2 py-0.2 rounded shrink-0">
                         {totalCnt}명{" "}
                         <span className="text-[11px] font-normal text-purple-500">
                           (적격 {eligCnt})
@@ -905,13 +945,13 @@ export default function FgiRecruitmentDashboard() {
 
         {/* 3. 서브 탭 & 필터 바 */}
         <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs flex flex-wrap items-center justify-between gap-3 print:hidden">
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveSubTab("overview")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                 activeSubTab === "overview"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               <BarChart3 className="w-3.5 h-3.5" />
@@ -920,10 +960,10 @@ export default function FgiRecruitmentDashboard() {
 
             <button
               onClick={() => setActiveSubTab("service")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                 activeSubTab === "service"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -932,10 +972,10 @@ export default function FgiRecruitmentDashboard() {
 
             <button
               onClick={() => setActiveSubTab("travel")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                 activeSubTab === "travel"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               <Compass className="w-3.5 h-3.5" />
@@ -943,11 +983,23 @@ export default function FgiRecruitmentDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveSubTab("screening")}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                activeSubTab === "screening"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Ⅳ. 참가 자격 · 스크리닝 통계</span>
+            </button>
+
+            <button
               onClick={() => setActiveSubTab("voices")}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                 activeSubTab === "voices"
-                  ? "bg-slate-900 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                  : "bg-slate-100/90 text-slate-700 border-slate-200/90 shadow-2xs hover:bg-slate-200/70 hover:border-slate-300 hover:text-slate-900"
               }`}
             >
               <MessageSquareQuote className="w-3.5 h-3.5" />
@@ -1139,11 +1191,43 @@ export default function FgiRecruitmentDashboard() {
             />
 
             <HorizontalStatCard
+              codeBadge="Ⅱ-8"
+              title="최근 1년 내 배지랜드 월간·연간 랭킹 10위 이내 여부"
+              subtitle="극단적 헤비유저(아웃라이어) 확인 문항"
+              items={stats.badgeRanks}
+              barColor="bg-cyan-600"
+            />
+
+            <HorizontalStatCard
               codeBadge="Ⅱ-9"
               title="이용 감소 또는 중단 이유 (복수응답)"
               subtitle="콜드 유저(휴면·이탈군)의 주요 이탈 원인"
               items={stats.stopReasons}
               barColor="bg-rose-500"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅱ-10"
+              title="[잠재유저] 구석구석 메인 화면 인지 여부"
+              subtitle="비회원·미이용자의 브랜드/화면 사전 인지 수준"
+              items={stats.mainScreens}
+              barColor="bg-violet-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅱ-11"
+              title="[잠재유저] 평소 여행 정보 탐색 빈도"
+              subtitle="앱·검색·SNS 등을 통한 여행 정보 탐색 주기"
+              items={stats.searchFreqs}
+              barColor="bg-fuchsia-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅱ-12"
+              title="[잠재유저] 여행 시 주로 이용하는 타사 앱·서비스"
+              subtitle="지도, 숙박·액티비티 플랫폼, 공공 관광 사이트 등"
+              items={stats.otherApps}
+              barColor="bg-orange-500"
             />
           </div>
         )}
@@ -1187,6 +1271,58 @@ export default function FgiRecruitmentDashboard() {
               title="현장 방문 인증 리워드(스탬프 투어·발도장 등) 참여 경험"
               subtitle="오프라인 방문 인증형 미션 참여도"
               items={stats.stampRewards}
+              barColor="bg-amber-500"
+            />
+          </div>
+        )}
+
+        {activeSubTab === "screening" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <HorizontalStatCard
+              codeBadge="종합"
+              title="1차 스크리닝 적격 판정 및 제외 사유 분포"
+              subtitle="전체 신청자 중 적격 통과자 및 사유별 배제 현황"
+              items={stats.screeningBreakdown}
+              barColor="bg-emerald-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅳ-1"
+              title="본인·가족 배제 대상 기관·업종 종사 여부"
+              subtitle="한국관광공사, 구석구석 협력사, 여행업, 광고·마케팅, 조사업, 언론 종사자 배제"
+              items={stats.jobExcludeStats}
+              barColor="bg-sky-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅳ-2"
+              title="성실 응답 주의 확인 문항 ('3번' 선택 여부)"
+              subtitle="불성실·무작위 응답자를 걸러내기 위한 검증 문항"
+              items={stats.attentionStats}
+              barColor="bg-indigo-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅳ-3"
+              title="최근 6개월 내 한국관광공사 좌담회·FGI 참여 이력"
+              subtitle="구석구석·가볼래-터·SNS 관련 좌담회 중복 참여자 배제"
+              items={stats.pastFgiStats}
+              barColor="bg-purple-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅴ-5"
+              title="현재 대한민국 구석구석 회원 가입 여부"
+              subtitle="신청자의 현재 구석구석 회원/비회원 응답 분포"
+              items={stats.memberStatus}
+              barColor="bg-teal-600"
+            />
+
+            <HorizontalStatCard
+              codeBadge="Ⅱ-8"
+              title="배지랜드 월간·연간 랭킹 10위 이내(아웃라이어) 여부"
+              subtitle="극단적 상위 랭커 편중 방지를 위한 확인 문항"
+              items={stats.badgeRanks}
               barColor="bg-amber-500"
             />
           </div>
