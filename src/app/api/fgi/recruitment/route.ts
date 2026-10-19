@@ -11,6 +11,9 @@ const CONFIG_FILE_PATH = path.join(
   ".fgi-webhook.json"
 );
 
+const DEFAULT_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyv9G0PeXu1FNHnzGgZh8lVId0h02XedYqdevPYgIRpTlqdN1f51DnYgyTKNpTI70gy/exec";
+
 function getSavedScriptUrl(): string {
   if (process.env.NEXT_PUBLIC_FGI_SCRIPT_URL) {
     return process.env.NEXT_PUBLIC_FGI_SCRIPT_URL.trim();
@@ -26,7 +29,7 @@ function getSavedScriptUrl(): string {
   } catch (e) {
     console.error("Failed to read FGI webhook config:", e);
   }
-  return "";
+  return DEFAULT_SCRIPT_URL;
 }
 
 // 연동 URL 설정 전에도 즉시 화면을 확인할 수 있도록 현재 시트의 2건 테스트 응답을 반영한 기본 데이터

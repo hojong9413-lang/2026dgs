@@ -592,10 +592,10 @@ export default function FgiRecruitmentDashboard() {
     const regions = countSingleChoice(targetList, (r) => r.region);
     const attendStatus = countSingleChoice(targetList, (r) => r.attend);
     const sessions = countMultiChoice(targetList, (r) => r.sessions, [
-      "11월 19일(목) 오전 10:00~11:30",
-      "11월 19일(목) 오후 13:00~14:30",
-      "11월 20일(금) 오전 10:00~11:30",
-      "11월 20일(금) 오후 13:00~14:30",
+      "2026. 11. 19(목) 오전 10:00~11:30",
+      "2026. 11. 19(목) 오후 13:00~14:30",
+      "2026. 11. 20(금) 오전 10:00~11:30",
+      "2026. 11. 20(금) 오후 13:00~14:30",
     ]);
 
     const expTypes = countSingleChoice(targetList, (r) => r.exp);
@@ -878,12 +878,15 @@ export default function FgiRecruitmentDashboard() {
               </div>
               <div className="space-y-1.5 mt-1">
                 {[
-                  { short: "11/19(목) 오전", match: "11월 19일(목) 오전" },
-                  { short: "11/19(목) 오후", match: "11월 19일(목) 오후" },
-                  { short: "11/20(금) 오전", match: "11월 20일(금) 오전" },
-                  { short: "11/20(금) 오후", match: "11월 20일(금) 오후" },
+                  { short: "11/19(목) 오전", match: "19(목) 오전" },
+                  { short: "11/19(목) 오후", match: "19(목) 오후" },
+                  { short: "11/20(금) 오전", match: "20(금) 오전" },
+                  { short: "11/20(금) 오후", match: "20(금) 오후" },
                 ].map((sess) => {
-                  const cnt = allRecords.filter(
+                  const totalCnt = allRecords.filter((r) =>
+                    r.sessions.includes(sess.match)
+                  ).length;
+                  const eligCnt = allRecords.filter(
                     (r) => r.isEligible && r.sessions.includes(sess.match)
                   ).length;
                   return (
@@ -895,7 +898,10 @@ export default function FgiRecruitmentDashboard() {
                         {sess.short}
                       </span>
                       <span className="font-mono font-bold text-purple-700 bg-purple-50 px-2 py-0.2 rounded">
-                        적격 {cnt}명
+                        {totalCnt}명{" "}
+                        <span className="text-[11px] font-normal text-purple-500">
+                          (적격 {eligCnt})
+                        </span>
                       </span>
                     </div>
                   );
