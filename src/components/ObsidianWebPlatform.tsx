@@ -31,9 +31,11 @@ import {
   Layers,
   Bot,
   Image as ImageIcon,
+  BarChart3,
 } from "lucide-react";
 import SecurityLockScreen from "./SecurityLockScreen";
 import ObsidianCalendarView from "./ObsidianCalendarView";
+import FgiRecruitmentDashboard from "./FgiRecruitmentDashboard";
 
 interface FileNode {
   name: string;
@@ -589,6 +591,40 @@ export default function ObsidianWebPlatform() {
     setActiveTabId(newTab.id);
   };
 
+  // FGI 실시간 모집현황 대시보드 탭 열기
+  const handleOpenFgiDashboard = () => {
+    const existing = tabs.find((t) => t.ext === "fgi-dashboard");
+    if (existing) {
+      setActiveTabId(existing.id);
+      return;
+    }
+
+    if (tabs.length === 1 && !tabs[0].path) {
+      const updatedTab: TabItem = {
+        id: tabs[0].id,
+        name: "FGI 모집 현황",
+        path: "fgi-dashboard",
+        ext: "fgi-dashboard",
+        history: [{ name: "FGI 모집 현황", path: "fgi-dashboard", ext: "fgi-dashboard" }],
+        historyIndex: 0,
+      };
+      setTabs([updatedTab]);
+      setActiveTabId(updatedTab.id);
+      return;
+    }
+
+    const newTab: TabItem = {
+      id: `tab-fgi-${Date.now()}`,
+      name: "FGI 모집 현황",
+      path: "fgi-dashboard",
+      ext: "fgi-dashboard",
+      history: [{ name: "FGI 모집 현황", path: "fgi-dashboard", ext: "fgi-dashboard" }],
+      historyIndex: 0,
+    };
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.id);
+  };
+
   // 캘린더 내 일정 클릭 시 해당 노트 열람
   const handleOpenNoteFromCalendar = (notePath: string) => {
     const targetBaseName = notePath.split("/").pop() || notePath;
@@ -769,6 +805,19 @@ export default function ObsidianWebPlatform() {
                     >
                       <Calendar className="w-2.5 h-2.5" />
                       <span>달력</span>
+                    </span>
+                  )}
+                  {node.name.includes("50_FGI") && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenFgiDashboard();
+                      }}
+                      className="ml-auto text-[10px] font-bold text-sky-700 bg-sky-100 hover:bg-sky-200 px-1.5 py-0.5 rounded cursor-pointer transition-colors shadow-2xs flex items-center gap-0.5"
+                      title="FGI 참가자 모집 실시간 통계 상황판 열기"
+                    >
+                      <BarChart3 className="w-2.5 h-2.5" />
+                      <span>모집현황</span>
                     </span>
                   )}
                 </button>
@@ -1041,6 +1090,9 @@ export default function ObsidianWebPlatform() {
                 {tab.ext === "calendar" && (
                   <Calendar className="w-3.5 h-3.5 text-[#705dcf] shrink-0" />
                 )}
+                {tab.ext === "fgi-dashboard" && (
+                  <BarChart3 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                )}
                 <span className="max-w-[160px] truncate">
                   {tab.name.replace(/\.md$/, "")}
                 </span>
@@ -1070,6 +1122,15 @@ export default function ObsidianWebPlatform() {
           >
             <Calendar className="w-3.5 h-3.5" />
             <span className="hidden md:inline">과업 캘린더</span>
+          </button>
+
+          <button
+            onClick={handleOpenFgiDashboard}
+            title="50_FGI 참가자 모집 실시간 통계 상황판 열기"
+            className="p-1 text-sky-700 hover:text-sky-900 hover:bg-sky-100 rounded transition-colors ml-1 flex items-center gap-1 text-xs font-semibold px-2 cursor-pointer border border-sky-200/80 bg-sky-50/70 shadow-2xs"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">FGI 모집현황</span>
           </button>
         </div>
 
@@ -1108,6 +1169,8 @@ export default function ObsidianWebPlatform() {
             <span className="font-medium text-slate-800 truncate">
               {activeTab && activeTab.ext === "calendar"
                 ? "vault / 01_과업일정 / Calendar (Obsidian Full Calendar 뷰)"
+                : activeTab && activeTab.ext === "fgi-dashboard"
+                ? "vault / 50_FGI / 실시간 참가자 모집 통계 대시보드 (Google Sheets 연동)"
                 : activeTab && activeTab.path
                 ? `vault / ${activeTab.path}`
                 : "시작 화면"}
@@ -1115,16 +1178,19 @@ export default function ObsidianWebPlatform() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {activeTab && activeTab.path && activeTab.ext !== "calendar" && (
-              <a
-                href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
-                download
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors text-xs"
-              >
-                <Download className="w-3.5 h-3.5 text-slate-600" />
-                <span>원본 다운로드</span>
-              </a>
-            )}
+            {activeTab &&
+              activeTab.path &&
+              activeTab.ext !== "calendar" &&
+              activeTab.ext !== "fgi-dashboard" && (
+                <a
+                  href={`/api/vault/raw?path=${encodeURIComponent(activeTab.path)}&download=true`}
+                  download
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors text-xs"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-600" />
+                  <span>원본 다운로드</span>
+                </a>
+              )}
 
             {/* 보안 로그아웃 버튼 */}
             <button
@@ -1160,6 +1226,44 @@ export default function ObsidianWebPlatform() {
 
                 {/* 시원시원한 안내 카드들 */}
                 <div className="space-y-3 pt-2">
+                  <div
+                    onClick={handleOpenFgiDashboard}
+                    className="border border-sky-200/90 rounded-xl p-4 sm:p-5 bg-gradient-to-r from-sky-50/90 to-indigo-50/90 hover:from-sky-100 hover:to-indigo-100 transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-sky-950 flex items-center gap-1.5">
+                        <BarChart3 className="w-4 h-4 text-sky-600" />
+                        <span>50_FGI 참가자 모집 실시간 통계 상황판 (10.20~10.30)</span>
+                      </div>
+                      <div className="text-xs text-sky-800/80">
+                        구글 설문폼 응답 실시간 연동 · 개인정보 비식별화 · 그룹별(G1~G4) 적격 후보 및 통계 차트
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-sky-600 text-white shrink-0 ml-3 shadow-2xs group-hover:brightness-110 flex items-center gap-1">
+                      <span>상황판 열기</span>
+                      <span>→</span>
+                    </span>
+                  </div>
+
+                  <div
+                    onClick={handleOpenCalendar}
+                    className="border border-purple-200/90 rounded-xl p-4 sm:p-5 bg-gradient-to-r from-purple-50/80 to-indigo-50/80 hover:from-purple-100 hover:to-indigo-100 transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="text-sm sm:text-base font-bold text-purple-900 flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-[#705dcf]" />
+                        <span>01_과업일정 캘린더 (Obsidian Full Calendar)</span>
+                      </div>
+                      <div className="text-xs text-purple-700/80">
+                        총 62개 마일스톤 및 주요 마감일 월간 캘린더 뷰 연동, 클릭 시 해당 일정 노트 바로가기
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-[#705dcf] text-white shrink-0 ml-3 shadow-2xs group-hover:brightness-110 flex items-center gap-1">
+                      <span>캘린더 열기</span>
+                      <span>→</span>
+                    </span>
+                  </div>
+
                   <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors text-left flex items-center justify-between shadow-xs">
                     <div className="space-y-0.5">
                       <div className="text-sm sm:text-base font-bold text-slate-800">
@@ -1187,39 +1291,6 @@ export default function ObsidianWebPlatform() {
                       스마트 링크 지원
                     </span>
                   </div>
-
-                  <div className="border border-slate-200/90 rounded-xl p-4 sm:p-5 bg-slate-50/80 hover:bg-slate-100/80 transition-colors text-left flex items-center justify-between shadow-xs">
-                    <div className="space-y-0.5">
-                      <div className="text-sm sm:text-base font-bold text-slate-800">
-                        옵시디언 노트, PDF, 이미지, 음성녹음파일 보기 지원
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        기타 PPT, EXCEL, HWP 등 업무용 문서는 원클릭 다운로드 지원
-                      </div>
-                    </div>
-                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-purple-100 text-purple-800 shrink-0 ml-3">
-                      뷰어 / 다운로드
-                    </span>
-                  </div>
-
-                  <div
-                    onClick={handleOpenCalendar}
-                    className="border border-purple-200/90 rounded-xl p-4 sm:p-5 bg-gradient-to-r from-purple-50/80 to-indigo-50/80 hover:from-purple-100 hover:to-indigo-100 transition-all text-left flex items-center justify-between shadow-xs cursor-pointer group"
-                  >
-                    <div className="space-y-0.5">
-                      <div className="text-sm sm:text-base font-bold text-purple-900 flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-[#705dcf]" />
-                        <span>01_과업일정 캘린더 (Obsidian Full Calendar)</span>
-                      </div>
-                      <div className="text-xs text-purple-700/80">
-                        총 62개 마일스톤 및 주요 마감일 월간 캘린더 뷰 연동, 클릭 시 해당 일정 노트 바로가기
-                      </div>
-                    </div>
-                    <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-[#705dcf] text-white shrink-0 ml-3 shadow-2xs group-hover:brightness-110 flex items-center gap-1">
-                      <span>캘린더 열기</span>
-                      <span>→</span>
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1232,14 +1303,31 @@ export default function ObsidianWebPlatform() {
             </div>
           )}
 
-          {activeTab && activeTab.path && activeTab.ext !== "calendar" && loadingFile && (
-            <div className="h-full flex items-center justify-center text-xs text-slate-400">
-              문서를 불러오는 중입니다...
+          {/* FGI 참가자 모집 실시간 통계 대시보드 뷰 */}
+          {activeTab && activeTab.ext === "fgi-dashboard" && (
+            <div className="h-full w-full overflow-y-auto">
+              <FgiRecruitmentDashboard />
             </div>
           )}
 
+          {activeTab &&
+            activeTab.path &&
+            activeTab.ext !== "calendar" &&
+            activeTab.ext !== "fgi-dashboard" &&
+            loadingFile && (
+              <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                문서를 불러오는 중입니다...
+              </div>
+            )}
+
           {/* 마크다운 문서 (.md) 열람 */}
-          {activeTab && activeTab.path && activeTab.ext !== "calendar" && !loadingFile && currentDetail && currentDetail.isText && (
+          {activeTab &&
+            activeTab.path &&
+            activeTab.ext !== "calendar" &&
+            activeTab.ext !== "fgi-dashboard" &&
+            !loadingFile &&
+            currentDetail &&
+            currentDetail.isText && (
             <div className="max-w-4xl mx-auto px-8 py-10">
               {/* 메인 타이틀 (옵시디언 상단 타이틀) */}
               {parsedMarkdown.extractedTitle && (

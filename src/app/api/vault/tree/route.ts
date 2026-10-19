@@ -39,6 +39,7 @@ function scanVault(
       entry.name === ".git" ||
       entry.name === ".DS_Store" ||
       entry.name === ".r2-manifest.json" ||
+      entry.name === ".fgi-webhook.json" ||
       entry.name.startsWith("~$")
     ) {
       continue;

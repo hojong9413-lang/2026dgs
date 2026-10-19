@@ -176,22 +176,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const dir = path.dirname(CONFIG_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    try {
+      const dir = path.dirname(CONFIG_FILE_PATH);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(
+        CONFIG_FILE_PATH,
+        JSON.stringify(
+          {
+            scriptUrl,
+            updatedAt: new Date().toISOString(),
+          },
+          null,
+          2
+        ),
+        "utf-8"
+      );
+    } catch (fsErr) {
+      // Vercel 서버리스(읽기 전용 파일시스템) 환경에서는 파일 쓰기 생략 (클라이언트 localStorage 및 .fgi-webhook.json 커밋으로 연동)
+      console.warn("Serverless read-only filesystem, skipping local file write:", fsErr);
     }
-    fs.writeFileSync(
-      CONFIG_FILE_PATH,
-      JSON.stringify(
-        {
-          scriptUrl,
-          updatedAt: new Date().toISOString(),
-        },
-        null,
-        2
-      ),
-      "utf-8"
-    );
 
     return NextResponse.json({
       success: true,

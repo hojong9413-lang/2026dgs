@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     }
 
     const ext = path.extname(targetPath).toLowerCase();
-    const isText = [".md", ".txt", ".json", ".csv"].includes(ext);
+    const isText = [".md", ".txt", ".json", ".csv", ".gs"].includes(ext);
 
     let content: string | null = null;
     if (isText) {
