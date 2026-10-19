@@ -729,14 +729,6 @@ export default function FgiRecruitmentDashboard() {
             </button>
 
             <button
-              onClick={() => setIsConfigOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
-            >
-              <Settings className="w-3.5 h-3.5 text-slate-500" />
-              <span>시트 연동 설정</span>
-            </button>
-
-            <button
               onClick={() => window.print()}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
               title="PDF 저장 또는 보고서 인쇄"
