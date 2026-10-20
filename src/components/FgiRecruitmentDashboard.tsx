@@ -335,6 +335,56 @@ function formatKoreanDateTime(isoOrStr?: string) {
   });
 }
 
+function formatSyncDateTime(isoOrStr?: string) {
+  if (!isoOrStr) return "-";
+  const d = new Date(isoOrStr);
+  if (isNaN(d.getTime())) return isoOrStr;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${year}. ${month}. ${day}. ${hours}:${minutes}`;
+}
+
+const SUB_TABS = [
+  {
+    id: "overview" as const,
+    num: "Ⅰ",
+    label: "유입경로 · 인구통계 · 참석시간",
+    badgeInactive: "bg-sky-100 text-sky-700",
+    hoverClass: "hover:border-sky-400 hover:bg-sky-50/50 hover:text-sky-950",
+  },
+  {
+    id: "service" as const,
+    num: "Ⅱ",
+    label: "대구석 이용 행태 통계",
+    badgeInactive: "bg-indigo-100 text-indigo-700",
+    hoverClass: "hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-950",
+  },
+  {
+    id: "travel" as const,
+    num: "Ⅲ",
+    label: "국내여행 · AI 활용 통계",
+    badgeInactive: "bg-violet-100 text-violet-700",
+    hoverClass: "hover:border-violet-400 hover:bg-violet-50/50 hover:text-violet-950",
+  },
+  {
+    id: "screening" as const,
+    num: "Ⅳ",
+    label: "참가 자격 · 스크리닝 통계",
+    badgeInactive: "bg-emerald-100 text-emerald-700",
+    hoverClass: "hover:border-emerald-400 hover:bg-emerald-50/50 hover:text-emerald-950",
+  },
+  {
+    id: "voices" as const,
+    num: "Ⅴ",
+    label: "신청자 익명 의견(VOC) & 응답 목록",
+    badgeInactive: "bg-amber-100 text-amber-700",
+    hoverClass: "hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-950",
+  },
+];
+
 function extractDateKey(isoOrStr?: string): string {
   if (!isoOrStr) return "기타";
   const d = new Date(isoOrStr);
@@ -735,11 +785,11 @@ export default function FgiRecruitmentDashboard() {
               FGI(집단 심층 인터뷰) 참가자 모집 실시간 통계 대시보드
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              모집 기간: <strong className="text-slate-700">2026. 10. 20.(화) ~ 10. 30.(금)</strong>{" "}
+              모집 기간: <strong className="text-slate-700">2026. 10. 20(화) ~ 10. 30(금)</strong>{" "}
               | 마지막 동기화:{" "}
-              <span className="font-mono text-slate-700">
-                {formatKoreanDateTime(data?.updatedAt)}
-              </span>
+              <strong className="text-slate-700">
+                {formatSyncDateTime(data?.updatedAt)}
+              </strong>
             </p>
           </div>
 
@@ -961,105 +1011,39 @@ export default function FgiRecruitmentDashboard() {
         {/* 3. 서브 탭 & 필터 바 (시선 집중형 네비게이션 독 디자인) */}
         <div className="bg-gradient-to-r from-slate-100/95 via-indigo-50/70 to-sky-50/80 border-2 border-indigo-200/80 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3 print:hidden">
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setActiveSubTab("overview")}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
-                activeSubTab === "overview"
-                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
-                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-sky-400 hover:bg-sky-50/50 hover:text-sky-950 hover:-translate-y-0.5"
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
-                  activeSubTab === "overview"
-                    ? "bg-white/20 text-white"
-                    : "bg-sky-100 text-sky-700"
-                }`}
-              >
-                Ⅰ
-              </span>
-              <span>유입경로 · 인구통계 · 참석시간</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSubTab("service")}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
-                activeSubTab === "service"
-                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
-                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-950 hover:-translate-y-0.5"
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
-                  activeSubTab === "service"
-                    ? "bg-white/20 text-white"
-                    : "bg-indigo-100 text-indigo-700"
-                }`}
-              >
-                Ⅱ
-              </span>
-              <span>대구석 이용 행태 통계</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSubTab("travel")}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
-                activeSubTab === "travel"
-                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
-                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-violet-400 hover:bg-violet-50/50 hover:text-violet-950 hover:-translate-y-0.5"
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
-                  activeSubTab === "travel"
-                    ? "bg-white/20 text-white"
-                    : "bg-violet-100 text-violet-700"
-                }`}
-              >
-                Ⅲ
-              </span>
-              <span>국내여행 · AI 활용 통계</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSubTab("screening")}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
-                activeSubTab === "screening"
-                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
-                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-emerald-400 hover:bg-emerald-50/50 hover:text-emerald-950 hover:-translate-y-0.5"
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
-                  activeSubTab === "screening"
-                    ? "bg-white/20 text-white"
-                    : "bg-emerald-100 text-emerald-700"
-                }`}
-              >
-                Ⅳ
-              </span>
-              <span>참가 자격 · 스크리닝 통계</span>
-            </button>
-
-            <button
-              onClick={() => setActiveSubTab("voices")}
-              className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
-                activeSubTab === "voices"
-                  ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 -translate-y-0.5"
-                  : "bg-white text-slate-800 border-slate-300/90 shadow-xs hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-950 hover:-translate-y-0.5"
-              }`}
-            >
-              <span
-                className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 ${
-                  activeSubTab === "voices"
-                    ? "bg-white/20 text-white"
-                    : "bg-amber-100 text-amber-700"
-                }`}
-              >
-                Ⅴ
-              </span>
-              <span>신청자 익명 의견(VOC) & 응답 목록</span>
-            </button>
+            {SUB_TABS.map((tab) => {
+              const isSelected = activeSubTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveSubTab(tab.id)}
+                  className={`px-4 py-2.5 rounded-xl text-xs sm:text-[13px] font-extrabold flex items-center gap-2 border-2 transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-900 text-white border-indigo-900 shadow-md shadow-indigo-950/30 -translate-y-0.5"
+                      : `bg-white text-slate-800 border-slate-300/90 shadow-xs ${tab.hoverClass} hover:-translate-y-0.5`
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-black shrink-0 transition-all ${
+                      isSelected
+                        ? "bg-white/25 text-white ring-1 ring-white/40 drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]"
+                        : tab.badgeInactive
+                    }`}
+                  >
+                    {tab.num}
+                  </span>
+                  <span
+                    className={
+                      isSelected
+                        ? "drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] tracking-tight text-white"
+                        : "tracking-tight"
+                    }
+                  >
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* 하단 필터 바 (전체 vs 적격 후보자만 / 그룹 필터) */}
