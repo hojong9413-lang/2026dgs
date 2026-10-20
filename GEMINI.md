@@ -25,3 +25,14 @@
 ## 4. 언어 원칙
 - 모든 답변 및 문서 생성은 한글로 작성한다.
 
+## 5. 데이터베이스 연동 원칙 (Supabase Data API 보안 정책)
+- **2026년 10월 30일 이후 신규 테이블 필수 GRANT 규칙**:
+  - Supabase `public` 스키마에 신규 테이블을 생성하거나 DDL/마이그레이션 쿼리를 작성할 때, `anon`, `authenticated`, `service_role`에 대한 명시적 `GRANT` 구문을 누락 없이 항상 함께 작성한다.
+  ```sql
+  -- 신규 테이블 생성 시 필수 권한 부여
+  grant select on public.[테이블명] to anon;
+  grant select, insert, update, delete on public.[테이블명] to authenticated;
+  grant select, insert, update, delete on public.[테이블명] to service_role;
+  ```
+
+
