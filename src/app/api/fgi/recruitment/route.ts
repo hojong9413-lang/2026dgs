@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { writeFgiSummaryMarkdownToVault } from "@/lib/fgi-obsidian-sync";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,10 @@ const CONFIG_FILE_PATH = path.join(
   ".fgi-webhook.json"
 );
 
-const DEFAULT_SCRIPT_URL =
+export const DEFAULT_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbyv9G0PeXu1FNHnzGgZh8lVId0h02XedYqdevPYgIRpTlqdN1f51DnYgyTKNpTI70gy/exec";
 
-function getSavedScriptUrl(): string {
+export function getSavedScriptUrl(): string {
   if (process.env.NEXT_PUBLIC_FGI_SCRIPT_URL) {
     return process.env.NEXT_PUBLIC_FGI_SCRIPT_URL.trim();
   }
@@ -141,6 +142,9 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await res.json();
+    if (Array.isArray(data?.records)) {
+      writeFgiSummaryMarkdownToVault(data.records, data.updatedAt);
+    }
     return NextResponse.json({
       ...data,
       isPreview: false,

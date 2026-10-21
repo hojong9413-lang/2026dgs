@@ -4,6 +4,12 @@ import path from "path";
 
 import { checkIsAuthenticated } from "@/lib/auth";
 import { readR2Manifest } from "@/lib/r2-manifest";
+import {
+  FGI_SUMMARY_NOTE_FILENAME,
+  buildFgiSummaryMarkdown,
+  writeFgiSummaryMarkdownToVault,
+} from "@/lib/fgi-obsidian-sync";
+import { getSavedScriptUrl } from "@/app/api/fgi/recruitment/route";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +36,45 @@ export async function GET(request: NextRequest) {
     // 보안 검증: vault 외부 경로 탈출 차단
     if (!targetPath.startsWith(vaultRoot)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    // FGI 실시간 요약 노트 조회 시(폴더 이동 여부 무관) 최신 설문 데이터로 즉시 갱신
+    if (path.basename(targetPath) === FGI_SUMMARY_NOTE_FILENAME) {
+      try {
+        const scriptUrl = getSavedScriptUrl();
+        if (scriptUrl) {
+          const res = await fetch(scriptUrl, {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+            redirect: "follow",
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data?.records)) {
+              writeFgiSummaryMarkdownToVault(data.records, data.updatedAt);
+              const freshContent = buildFgiSummaryMarkdown(
+                data.records,
+                data.updatedAt
+              );
+              return NextResponse.json({
+                success: true,
+                file: {
+                  name: path.basename(targetPath),
+                  path: normalizedRelPath,
+                  extension: ".md",
+                  size: Buffer.byteLength(freshContent, "utf-8"),
+                  updatedAt: data.updatedAt || new Date().toISOString(),
+                  isText: true,
+                  content: freshContent,
+                },
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to live-refresh FGI summary markdown:", e);
+      }
     }
 
     // 로컬(또는 서버 디스크)에 파일이 없지만 R2 매니페스트에 존재하는 대용량 미디어(.mp4 등)인 경우
