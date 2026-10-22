@@ -480,6 +480,9 @@ export default function FgiRecruitmentDashboard() {
     "overview" | "service" | "travel" | "screening" | "voices"
   >("overview");
   const [groupFilter, setGroupFilter] = useState<string>("ALL");
+  const [vocPage, setVocPage] = useState<number>(1);
+  const [tablePage, setTablePage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
 
   // 그룹 분류 기준 안내 모달 상태
   const [isGroupGuideOpen, setIsGroupGuideOpen] = useState(false);
@@ -585,6 +588,11 @@ export default function FgiRecruitmentDashboard() {
       return true;
     });
   }, [allRecords, onlyEligible, groupFilter]);
+
+  useEffect(() => {
+    setVocPage(1);
+    setTablePage(1);
+  }, [onlyEligible, groupFilter]);
 
   // 상단 요약 지표 계산
   const summaryMetrics = useMemo(() => {
@@ -1371,110 +1379,179 @@ export default function FgiRecruitmentDashboard() {
           </div>
         )}
 
-        {activeSubTab === "voices" && (
-          <div className="space-y-6">
-            {/* 주관식 의견 카드 모음 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-                      Ⅴ-1
-                    </span>
-                    <h3 className="font-bold text-slate-900 text-base">
-                      국내여행 정보 탐색 시 불편했던 점 / 필요한 기능 (신청자 익명 VOC)
-                    </h3>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    성함·연락처·이메일 등 개인정보를 제거하고 응답 순번과 연령·성별·거주지·후보그룹만 매칭하여 공유합니다.
-                  </p>
-                </div>
-              </div>
+        {activeSubTab === "voices" && (() => {
+          const reversedVocList = filteredRecords
+            .filter((r) => r.opinion)
+            .slice()
+            .reverse();
+          const vocTotalPages = Math.max(
+            1,
+            Math.ceil(reversedVocList.length / ITEMS_PER_PAGE)
+          );
+          const safeVocPage = Math.min(vocPage, vocTotalPages);
+          const pagedVocList = reversedVocList.slice(
+            (safeVocPage - 1) * ITEMS_PER_PAGE,
+            safeVocPage * ITEMS_PER_PAGE
+          );
 
-              {filteredRecords.filter((r) => r.opinion).length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-400">
-                  작성된 주관식 의견이 없습니다.
+          const reversedTableList = filteredRecords.slice().reverse();
+          const tableTotalPages = Math.max(
+            1,
+            Math.ceil(reversedTableList.length / ITEMS_PER_PAGE)
+          );
+          const safeTablePage = Math.min(tablePage, tableTotalPages);
+          const pagedTableList = reversedTableList.slice(
+            (safeTablePage - 1) * ITEMS_PER_PAGE,
+            safeTablePage * ITEMS_PER_PAGE
+          );
+
+          return (
+            <div className="space-y-6">
+              {/* 주관식 의견 카드 모음 */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                        Ⅴ-1
+                      </span>
+                      <h3 className="font-bold text-slate-900 text-base">
+                        국내여행 정보 탐색 시 불편했던 점 / 필요한 기능 (신청자 익명 VOC)
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      성함·연락처·이메일 등 개인정보를 제거하고 응답 순번과 연령·성별·거주지·후보그룹만 매칭하여 공유합니다.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                    총 {reversedVocList.length}건 · 페이지당 {ITEMS_PER_PAGE}개
+                  </span>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {filteredRecords
-                    .filter((r) => r.opinion)
-                    .slice()
-                    .reverse()
-                    .map((r) => (
-                      <div
-                        key={r.id}
-                        className="border border-slate-200 rounded-xl p-4 bg-slate-50/60 flex flex-col justify-between gap-2.5"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-1.5">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-xs font-mono font-bold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded">
-                              응답 #{r.id}
-                            </span>
-                            <span className="text-xs font-semibold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded">
-                              {r.ageGroup}
-                              {r.birthYear ? `(${r.birthYear})` : ""} ·{" "}
-                              {r.gender || "-"} · {r.region || "-"}
-                            </span>
-                            <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
-                              {r.targetGroup}
+
+                {reversedVocList.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-slate-400">
+                    작성된 주관식 의견이 없습니다.
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {pagedVocList.map((r) => (
+                        <div
+                          key={r.id}
+                          className="border border-slate-200 rounded-xl p-4 bg-slate-50/60 flex flex-col justify-between gap-2.5"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-1.5">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="text-xs font-mono font-bold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                                응답 #{r.id}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-700 bg-white border border-slate-200 px-2 py-0.5 rounded">
+                                {r.ageGroup}
+                                {r.birthYear ? `(${r.birthYear})` : ""} ·{" "}
+                                {r.gender || "-"} · {r.region || "-"}
+                              </span>
+                              <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+                                {r.targetGroup}
+                              </span>
+                            </div>
+                            {r.isEligible ? (
+                              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                                1차 적격
+                              </span>
+                            ) : (
+                              <span className="text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
+                                제외({r.excludeReasons.join(", ")})
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-sm text-slate-800 leading-relaxed break-keep bg-white p-3 rounded-lg border border-slate-200/80">
+                            “{r.opinion}”
+                          </p>
+
+                          <div className="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>유입: {r.channel || "-"}</span>
+                            <span className="font-mono">
+                              {formatKoreanDateTime(r.timestamp)}
                             </span>
                           </div>
-                          {r.isEligible ? (
-                            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                              1차 적격
-                            </span>
-                          ) : (
-                            <span className="text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
-                              제외({r.excludeReasons.join(", ")})
-                            </span>
-                          )}
                         </div>
+                      ))}
+                    </div>
 
-                        <p className="text-sm text-slate-800 leading-relaxed break-keep bg-white p-3 rounded-lg border border-slate-200/80">
-                          “{r.opinion}”
-                        </p>
+                    {/* 주관식 의견 페이지 이동 버튼 */}
+                    <div className="flex items-center justify-center gap-1.5 mt-5 pt-4 border-t border-slate-100 print:hidden">
+                      <button
+                        type="button"
+                        disabled={safeVocPage <= 1}
+                        onClick={() => setVocPage((p) => Math.max(1, p - 1))}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        이전
+                      </button>
+                      {Array.from({ length: vocTotalPages }, (_, idx) => idx + 1).map(
+                        (pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setVocPage(pageNum)}
+                            className={`w-8 h-8 text-xs font-mono font-bold rounded-lg border cursor-pointer transition-colors ${
+                              pageNum === safeVocPage
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        )
+                      )}
+                      <button
+                        type="button"
+                        disabled={safeVocPage >= vocTotalPages}
+                        onClick={() =>
+                          setVocPage((p) => Math.min(vocTotalPages, p + 1))
+                        }
+                        className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        다음
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
 
-                        <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span>유입: {r.channel || "-"}</span>
-                          <span className="font-mono">
-                            {formatKoreanDateTime(r.timestamp)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+              {/* 전체 비식별 응답 요약 테이블 */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base mb-1">
+                      실시간 응답자 비식별 현황표 (최근 순)
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      개인정보 보호를 위해 성명·전화번호·이메일·회원ID는 서버로 전송되지 않으며, 통계·분류 정보만 표시됩니다.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                    총 {reversedTableList.length}명 · 페이지당 {ITEMS_PER_PAGE}개
+                  </span>
                 </div>
-              )}
-            </div>
 
-            {/* 전체 비식별 응답 요약 테이블 */}
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs overflow-hidden">
-              <h3 className="font-bold text-slate-900 text-base mb-1">
-                실시간 응답자 비식별 현황표 (최근 순)
-              </h3>
-              <p className="text-xs text-slate-500 mb-4">
-                개인정보 보호를 위해 성명·전화번호·이메일·회원ID는 서버로 전송되지 않으며, 통계·분류 정보만 표시됩니다.
-              </p>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-100 border-y border-slate-200 text-slate-700 font-bold">
-                      <th className="py-2.5 px-3">순번</th>
-                      <th className="py-2.5 px-3">응답일시</th>
-                      <th className="py-2.5 px-3">유입경로(Ⅰ-1)</th>
-                      <th className="py-2.5 px-3">연령대(출생)</th>
-                      <th className="py-2.5 px-3">성별/지역</th>
-                      <th className="py-2.5 px-3">1차 후보그룹</th>
-                      <th className="py-2.5 px-3">참석가능 세션(Ⅰ-6)</th>
-                      <th className="py-2.5 px-3">적격 판정</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200/80">
-                    {filteredRecords
-                      .slice()
-                      .reverse()
-                      .map((r) => (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 border-y border-slate-200 text-slate-700 font-bold">
+                        <th className="py-2.5 px-3">순번</th>
+                        <th className="py-2.5 px-3">응답일시</th>
+                        <th className="py-2.5 px-3">유입경로(Ⅰ-1)</th>
+                        <th className="py-2.5 px-3">연령대(출생)</th>
+                        <th className="py-2.5 px-3">성별/지역</th>
+                        <th className="py-2.5 px-3">1차 후보그룹</th>
+                        <th className="py-2.5 px-3">참석가능 세션(Ⅰ-6)</th>
+                        <th className="py-2.5 px-3">적격 판정</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200/80">
+                      {pagedTableList.map((r) => (
                         <tr key={r.id} className="hover:bg-slate-50/80">
                           <td className="py-2.5 px-3 font-mono font-bold text-slate-800">
                             #{r.id}
@@ -1521,12 +1598,51 @@ export default function FgiRecruitmentDashboard() {
                           </td>
                         </tr>
                       ))}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 비식별 현황표 페이지 이동 버튼 */}
+                <div className="flex items-center justify-center gap-1.5 mt-5 pt-4 border-t border-slate-100 print:hidden">
+                  <button
+                    type="button"
+                    disabled={safeTablePage <= 1}
+                    onClick={() => setTablePage((p) => Math.max(1, p - 1))}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    이전
+                  </button>
+                  {Array.from({ length: tableTotalPages }, (_, idx) => idx + 1).map(
+                    (pageNum) => (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setTablePage(pageNum)}
+                        className={`w-8 h-8 text-xs font-mono font-bold rounded-lg border cursor-pointer transition-colors ${
+                          pageNum === safeTablePage
+                            ? "bg-indigo-600 text-white border-indigo-600"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )}
+                  <button
+                    type="button"
+                    disabled={safeTablePage >= tableTotalPages}
+                    onClick={() =>
+                      setTablePage((p) => Math.min(tableTotalPages, p + 1))
+                    }
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    다음
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* 5. 타깃 그룹(G1~G4) 분류 기준 안내 팝업 모달 */}
