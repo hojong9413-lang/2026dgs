@@ -23,6 +23,34 @@ export const FGI_SUMMARY_NOTE_FILENAME =
 export const FGI_SUMMARY_NOTE_REL_PATH =
   `02_주요진행상황/${FGI_SUMMARY_NOTE_FILENAME}`;
 
+export const CONFIG_FILE_PATH = path.join(
+  process.cwd(),
+  "vault",
+  "50_FGI",
+  ".fgi-webhook.json"
+);
+
+export const DEFAULT_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyv9G0PeXu1FNHnzGgZh8lVId0h02XedYqdevPYgIRpTlqdN1f51DnYgyTKNpTI70gy/exec";
+
+export function getSavedScriptUrl(): string {
+  if (process.env.NEXT_PUBLIC_FGI_SCRIPT_URL) {
+    return process.env.NEXT_PUBLIC_FGI_SCRIPT_URL.trim();
+  }
+  try {
+    if (fs.existsSync(CONFIG_FILE_PATH)) {
+      const raw = fs.readFileSync(CONFIG_FILE_PATH, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed?.scriptUrl && typeof parsed.scriptUrl === "string") {
+        return parsed.scriptUrl.trim();
+      }
+    }
+  } catch (e) {
+    console.error("Failed to read FGI webhook config:", e);
+  }
+  return DEFAULT_SCRIPT_URL;
+}
+
 function findExistingSummaryNotePath(vaultRoot: string): string | null {
   function walk(dir: string): string | null {
     let entries: fs.Dirent[];

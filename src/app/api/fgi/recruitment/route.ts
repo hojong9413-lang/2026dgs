@@ -1,37 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { writeFgiSummaryMarkdownToVault } from "@/lib/fgi-obsidian-sync";
+import {
+  CONFIG_FILE_PATH,
+  getSavedScriptUrl,
+  writeFgiSummaryMarkdownToVault,
+} from "@/lib/fgi-obsidian-sync";
 
 export const dynamic = "force-dynamic";
-
-const CONFIG_FILE_PATH = path.join(
-  process.cwd(),
-  "vault",
-  "50_FGI",
-  ".fgi-webhook.json"
-);
-
-const DEFAULT_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbyv9G0PeXu1FNHnzGgZh8lVId0h02XedYqdevPYgIRpTlqdN1f51DnYgyTKNpTI70gy/exec";
-
-function getSavedScriptUrl(): string {
-  if (process.env.NEXT_PUBLIC_FGI_SCRIPT_URL) {
-    return process.env.NEXT_PUBLIC_FGI_SCRIPT_URL.trim();
-  }
-  try {
-    if (fs.existsSync(CONFIG_FILE_PATH)) {
-      const raw = fs.readFileSync(CONFIG_FILE_PATH, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (parsed?.scriptUrl && typeof parsed.scriptUrl === "string") {
-        return parsed.scriptUrl.trim();
-      }
-    }
-  } catch (e) {
-    console.error("Failed to read FGI webhook config:", e);
-  }
-  return DEFAULT_SCRIPT_URL;
-}
 
 // 연동 URL 설정 전에도 즉시 화면을 확인할 수 있도록 현재 시트의 2건 테스트 응답을 반영한 기본 데이터
 const INITIAL_PREVIEW_RECORDS = [

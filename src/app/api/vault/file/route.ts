@@ -8,8 +8,8 @@ import {
   FGI_SUMMARY_NOTE_FILENAME,
   buildFgiSummaryMarkdown,
   writeFgiSummaryMarkdownToVault,
+  getSavedScriptUrl,
 } from "@/lib/fgi-obsidian-sync";
-import { getSavedScriptUrl } from "@/app/api/fgi/recruitment/route";
 
 export const dynamic = "force-dynamic";
 
