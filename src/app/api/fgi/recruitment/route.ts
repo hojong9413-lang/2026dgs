@@ -12,10 +12,10 @@ const CONFIG_FILE_PATH = path.join(
   ".fgi-webhook.json"
 );
 
-export const DEFAULT_SCRIPT_URL =
+const DEFAULT_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbyv9G0PeXu1FNHnzGgZh8lVId0h02XedYqdevPYgIRpTlqdN1f51DnYgyTKNpTI70gy/exec";
 
-export function getSavedScriptUrl(): string {
+function getSavedScriptUrl(): string {
   if (process.env.NEXT_PUBLIC_FGI_SCRIPT_URL) {
     return process.env.NEXT_PUBLIC_FGI_SCRIPT_URL.trim();
   }
