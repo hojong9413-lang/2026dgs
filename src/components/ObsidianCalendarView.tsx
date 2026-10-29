@@ -34,8 +34,12 @@ export default function ObsidianCalendarView({ onOpenNote }: ObsidianCalendarVie
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
 
-  // 기본 기준일: 2026년 10월 15일 (과업 활성 기준일)
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 9, 15));
+  // 기본 기준일: 현재(오늘) 날짜 자동 적용
+  const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  }, []);
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [selectedDayEvents, setSelectedDayEvents] = useState<{ date: string; events: CalendarEvent[] } | null>(null);
 
@@ -106,7 +110,7 @@ export default function ObsidianCalendarView({ onOpenNote }: ObsidianCalendarVie
   };
 
   const handleToday = () => {
-    setCurrentDate(new Date(2026, 9, 15)); // 과업 현재 기준일
+    setCurrentDate(new Date()); // 현재 오늘 날짜로 이동
   };
 
   // 4. 월간 달력 날짜 그리드 계산 (일요일 시작)
@@ -250,7 +254,7 @@ export default function ObsidianCalendarView({ onOpenNote }: ObsidianCalendarVie
           <div className="flex-1 grid grid-cols-7 grid-rows-5 border-l border-slate-200 min-h-0">
             {monthGridDays.map((day, idx) => {
               const dayEvents = eventsByDate.get(day.dateStr) || [];
-              const isToday = day.dateStr === "2026-10-15";
+              const isToday = day.dateStr === todayStr;
               const maxVisible = 4;
               const overflowCount = dayEvents.length - maxVisible;
 
@@ -329,7 +333,7 @@ export default function ObsidianCalendarView({ onOpenNote }: ObsidianCalendarVie
             {events
               .filter((ev) => !searchFilter || ev.title.toLowerCase().includes(searchFilter.toLowerCase()))
               .map((ev) => {
-                const isToday = ev.date === "2026-10-15";
+                const isToday = ev.date === todayStr;
                 return (
                   <div
                     key={ev.id}
