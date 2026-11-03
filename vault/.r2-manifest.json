@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-03T01:42:41.879Z",
+  "updatedAt": "2026-11-03T02:32:44.539Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -289,6 +289,22 @@
       "size": 243189,
       "updatedAt": "2026-10-12T11:32:17.807Z",
       "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/90_%EB%B3%B4%EC%95%88_AI_%EA%B8%B0%ED%83%80%ED%8C%8C%EC%9D%BC/%EB%B6%99%EC%9E%841_%ED%95%9C%EA%B5%AD%EA%B4%80%EA%B4%91%EA%B3%B5%EC%82%AC_AI%EC%9C%A4%EB%A6%AC%EA%B0%80%EC%9D%B4%EB%93%9C%EB%9D%BC%EC%9D%B8%282026.7.%29.pdf"
+    },
+    "50_FGI/FGI 사용자/(차별성) 범용AI VS 여행비서.pdf": {
+      "name": "(차별성) 범용AI VS 여행비서.pdf",
+      "path": "50_FGI/FGI 사용자/(차별성) 범용AI VS 여행비서.pdf",
+      "extension": ".pdf",
+      "size": 492056,
+      "updatedAt": "2026-11-03T02:32:01.296Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/%28%EC%B0%A8%EB%B3%84%EC%84%B1%29%20%EB%B2%94%EC%9A%A9AI%20VS%20%EC%97%AC%ED%96%89%EB%B9%84%EC%84%9C.pdf"
+    },
+    "50_FGI/FGI 업계/대한민국 구석구석_서비스 소개서_V1.0_202611.pdf": {
+      "name": "대한민국 구석구석_서비스 소개서_V1.0_202611.pdf",
+      "path": "50_FGI/FGI 업계/대한민국 구석구석_서비스 소개서_V1.0_202611.pdf",
+      "extension": ".pdf",
+      "size": 3445873,
+      "updatedAt": "2026-11-03T02:31:03.890Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD%20%EA%B5%AC%EC%84%9D%EA%B5%AC%EC%84%9D_%EC%84%9C%EB%B9%84%EC%8A%A4%20%EC%86%8C%EA%B0%9C%EC%84%9C_V1.0_202611.pdf"
     }
   }
 }
