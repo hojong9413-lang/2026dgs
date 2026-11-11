@@ -169,20 +169,44 @@ function s3Request({ method, objectKey, query = "", headers = {}, body = Buffer.
           if (res.statusCode >= 200 && res.statusCode < 300) {
             resolve({ statusCode: res.statusCode, headers: res.headers, body: responseText });
           } else {
-            reject(
-              new Error(`S3 ${method} failed (${res.statusCode}): ${responseText}`)
-            );
+            const err = new Error(`S3 ${method} failed (${res.statusCode}): ${responseText}`);
+            err.statusCode = res.statusCode;
+            reject(err);
           }
         });
       }
     );
 
+    req.setTimeout(120000, () => {
+      req.destroy(new Error(`S3 ${method} timeout after 120s`));
+    });
     req.on("error", reject);
     if (body.length > 0) {
       req.write(body);
     }
     req.end();
   });
+}
+
+async function s3RequestWithRetry(params, maxRetries = 3) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await s3Request(params);
+    } catch (err) {
+      lastError = err;
+      const status = err?.statusCode;
+      if (status && status >= 400 && status < 500 && status !== 429 && status !== 408) {
+        throw err;
+      }
+      if (attempt < maxRetries) {
+        const delayMs = 2000 * Math.pow(2, attempt);
+        console.warn(`   ⚠️ 요청 재시도 (${attempt + 1}/${maxRetries}, ${delayMs}ms 대기): ${err.message}`);
+        await new Promise((r) => setTimeout(r, delayMs));
+      }
+    }
+  }
+  throw lastError;
 }
 
 // 단일 PUT 또는 대용량(80MB 초과) 멀티파트 업로드
@@ -192,7 +216,7 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
 
   if (fileSize <= MULTIPART_THRESHOLD) {
     const buffer = fs.readFileSync(fullPath);
-    await s3Request({
+    await s3RequestWithRetry({
       method: "PUT",
       objectKey: relPath,
       headers: {
@@ -204,7 +228,7 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
   }
 
   // 1. Initiate Multipart Upload
-  const initRes = await s3Request({
+  const initRes = await s3RequestWithRetry({
     method: "POST",
     objectKey: relPath,
     query: "uploads=",
@@ -221,6 +245,7 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
 
   const fd = fs.openSync(fullPath, "r");
   const etags = [];
+  const totalParts = Math.ceil(fileSize / PART_SIZE);
   let partNumber = 1;
   let offset = 0;
 
@@ -231,7 +256,7 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
       fs.readSync(fd, chunkBuffer, 0, chunkSize, offset);
 
       const query = `partNumber=${partNumber}&uploadId=${encodeURIComponent(uploadId)}`;
-      const partRes = await s3Request({
+      const partRes = await s3RequestWithRetry({
         method: "PUT",
         objectKey: relPath,
         query,
@@ -240,14 +265,16 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
 
       const etag = partRes.headers.etag;
       etags.push({ partNumber, etag });
-      process.stdout.write(
-        `   ↳ 파트 ${partNumber} 업로드 완료 (${((offset + chunkSize) / 1024 / 1024).toFixed(1)} / ${(fileSize / 1024 / 1024).toFixed(1)} MB)\r`
-      );
+
+      if (partNumber === 1 || partNumber % 5 === 0 || partNumber === totalParts) {
+        console.log(
+          `   ↳ 파트 ${partNumber}/${totalParts} 업로드 완료 (${((offset + chunkSize) / 1024 / 1024).toFixed(1)} / ${(fileSize / 1024 / 1024).toFixed(1)} MB)`
+        );
+      }
 
       offset += chunkSize;
       partNumber++;
     }
-    process.stdout.write("\n");
 
     // 2. Complete Multipart Upload
     const xmlParts = etags
@@ -255,7 +282,7 @@ async function uploadFileToR2(fullPath, relPath, contentType, fileSize) {
       .join("");
     const completeXml = `<CompleteMultipartUpload>${xmlParts}</CompleteMultipartUpload>`;
 
-    await s3Request({
+    await s3RequestWithRetry({
       method: "POST",
       objectKey: relPath,
       query: `uploadId=${encodeURIComponent(uploadId)}`,
@@ -333,6 +360,50 @@ async function main() {
   let uploadedCount = 0;
   let skippedCount = 0;
 
+  const saveManifest = () => {
+    const newManifest = {
+      updatedAt: new Date().toISOString(),
+      publicUrl: PUBLIC_URL,
+      files: updatedFilesMap,
+    };
+    fs.writeFileSync(MANIFEST_PATH, JSON.stringify(newManifest, null, 2), "utf-8");
+  };
+
+  // 50MB 이상 대용량 파일(또는 동영상)은 GitHub 100MB 푸시 차단 방지를 위해 .gitignore 자동 등록 및 스테이징 해제
+  const GIT_EXCLUDE_SIZE = 50 * 1024 * 1024; // 50MB
+  const VIDEO_EXTS = new Set([".mp4", ".mov", ".webm", ".mkv", ".avi"]);
+  const gitignorePath = path.resolve(process.cwd(), ".gitignore");
+  if (fs.existsSync(gitignorePath)) {
+    let gitignoreContent = fs.readFileSync(gitignorePath, "utf-8");
+    const existingIgnoreLines = new Set(
+      gitignoreContent.split(/\r?\n/).map((line) => line.trim())
+    );
+    let gitignoreUpdated = false;
+    const { execSync } = await import("child_process");
+
+    for (const file of targetFiles) {
+      if (file.size >= GIT_EXCLUDE_SIZE || VIDEO_EXTS.has(file.extension)) {
+        const ignoreRule = `vault/${file.path}`;
+        if (!existingIgnoreLines.has(ignoreRule)) {
+          gitignoreContent = gitignoreContent.trimEnd() + `\n${ignoreRule}\n`;
+          existingIgnoreLines.add(ignoreRule);
+          gitignoreUpdated = true;
+          try {
+            execSync(`git rm --cached --ignore-unmatch "${ignoreRule}"`, {
+              stdio: "ignore",
+            });
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
+
+    if (gitignoreUpdated) {
+      fs.writeFileSync(gitignorePath, gitignoreContent, "utf-8");
+    }
+  }
+
   for (const file of targetFiles) {
     const prev = updatedFilesMap[file.path];
     const r2Url = `${PUBLIC_URL}/${encodeS3Key(file.path)}`;
@@ -358,46 +429,11 @@ async function main() {
       r2Url,
     };
     uploadedCount++;
+    saveManifest();
+    console.log(`   ✅ 완료 (${uploadedCount}건): ${file.name}`);
   }
 
-  const newManifest = {
-    updatedAt: new Date().toISOString(),
-    publicUrl: PUBLIC_URL,
-    files: updatedFilesMap,
-  };
-
-  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(newManifest, null, 2), "utf-8");
-
-  // 50MB 이상 대용량 파일(또는 동영상)은 GitHub 100MB 푸시 차단 방지를 위해 .gitignore 자동 등록 및 스테이징 해제
-  const GIT_EXCLUDE_SIZE = 50 * 1024 * 1024; // 50MB
-  const VIDEO_EXTS = new Set([".mp4", ".mov", ".webm", ".mkv", ".avi"]);
-  const gitignorePath = path.resolve(process.cwd(), ".gitignore");
-  if (fs.existsSync(gitignorePath)) {
-    let gitignoreContent = fs.readFileSync(gitignorePath, "utf-8");
-    let gitignoreUpdated = false;
-    const { execSync } = await import("child_process");
-
-    for (const file of targetFiles) {
-      if (file.size >= GIT_EXCLUDE_SIZE || VIDEO_EXTS.has(file.extension)) {
-        const ignoreRule = `vault/${file.path}`;
-        if (!gitignoreContent.includes(ignoreRule)) {
-          gitignoreContent = gitignoreContent.trimEnd() + `\n${ignoreRule}\n`;
-          gitignoreUpdated = true;
-          try {
-            execSync(`git rm --cached --ignore-unmatch "${ignoreRule}"`, {
-              stdio: "ignore",
-            });
-          } catch {
-            // ignore
-          }
-        }
-      }
-    }
-
-    if (gitignoreUpdated) {
-      fs.writeFileSync(gitignorePath, gitignoreContent, "utf-8");
-    }
-  }
+  saveManifest();
 
   // Vercel 배포 시 이미 R2에 동기화된 대용량/미디어 파일이 Serverless Function에 중복 포함되지 않도록 .vercelignore 자동 갱신
   const vercelIgnorePath = path.resolve(process.cwd(), ".vercelignore");

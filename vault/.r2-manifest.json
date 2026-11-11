@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-10T14:06:38.950Z",
+  "updatedAt": "2026-11-11T13:33:14.384Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -353,6 +353,70 @@
       "size": 20781397,
       "updatedAt": "2026-11-10T03:46:05.384Z",
       "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%A4%80%EB%B9%84%ED%8C%8C%EC%9D%BC/FGI_PT%EC%9A%A9%EC%9E%90%EB%A3%8C_%EC%9D%B4%EC%A0%84%EB%B2%84%EC%A0%84.zip"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/A그룹_녹취록.m4a": {
+      "name": "A그룹_녹취록.m4a",
+      "path": "50_FGI/FGI 업계/FGI현장진행/A그룹_녹취록.m4a",
+      "extension": ".m4a",
+      "size": 164432880,
+      "updatedAt": "2026-11-11T12:02:44.921Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/A%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/B그룹_녹취록.m4a": {
+      "name": "B그룹_녹취록.m4a",
+      "path": "50_FGI/FGI 업계/FGI현장진행/B그룹_녹취록.m4a",
+      "extension": ".m4a",
+      "size": 142672277,
+      "updatedAt": "2026-11-11T12:02:42.874Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/B%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/C그룹_녹취록.m4a": {
+      "name": "C그룹_녹취록.m4a",
+      "path": "50_FGI/FGI 업계/FGI현장진행/C그룹_녹취록.m4a",
+      "extension": ".m4a",
+      "size": 142975782,
+      "updatedAt": "2026-11-11T12:02:41.551Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/C%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹A.MP3": {
+      "name": "투어리즘인사이트_FGI 녹음본_전문가 그룹A.MP3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹A.MP3",
+      "extension": ".mp3",
+      "size": 154584002,
+      "updatedAt": "2026-11-11T12:08:48.005Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9A.MP3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹B.MP3": {
+      "name": "투어리즘인사이트_FGI 녹음본_전문가 그룹B.MP3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹B.MP3",
+      "extension": ".mp3",
+      "size": 142980619,
+      "updatedAt": "2026-11-11T12:08:54.939Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.MP3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹C.WAV": {
+      "name": "투어리즘인사이트_FGI 녹음본_전문가 그룹C.WAV",
+      "path": "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 녹음본_전문가 그룹C.WAV",
+      "extension": ".wav",
+      "size": 368808448,
+      "updatedAt": "2026-11-11T12:09:09.179Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9C.WAV"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹A.mp4": {
+      "name": "투어리즘인사이트_FGI 영상본_전문가 그룹A.mp4",
+      "path": "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹A.mp4",
+      "extension": ".mp4",
+      "size": 862605057,
+      "updatedAt": "2026-11-11T12:09:26.262Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9A.mp4"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹B.mp4": {
+      "name": "투어리즘인사이트_FGI 영상본_전문가 그룹B.mp4",
+      "path": "50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹B.mp4",
+      "extension": ".mp4",
+      "size": 771344092,
+      "updatedAt": "2026-11-11T12:09:43.614Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.mp4"
     }
   }
 }
