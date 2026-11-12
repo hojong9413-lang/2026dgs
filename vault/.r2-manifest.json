@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-12T09:09:15.292Z",
+  "updatedAt": "2026-11-12T10:36:37.371Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -425,6 +425,54 @@
       "size": 698322358,
       "updatedAt": "2026-11-12T00:57:56.408Z",
       "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9C.mp4"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_A그룹_관광공사 AI 여행 비서 민간과의 동상이몽_토론_길게.mp3": {
+      "name": "FGI업계_A그룹_관광공사 AI 여행 비서 민간과의 동상이몽_토론_길게.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_A그룹_관광공사 AI 여행 비서 민간과의 동상이몽_토론_길게.mp3",
+      "extension": ".mp3",
+      "size": 4973526,
+      "updatedAt": "2026-11-11T17:08:02.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_A%EA%B7%B8%EB%A3%B9_%EA%B4%80%EA%B4%91%EA%B3%B5%EC%82%AC%20AI%20%EC%97%AC%ED%96%89%20%EB%B9%84%EC%84%9C%20%EB%AF%BC%EA%B0%84%EA%B3%BC%EC%9D%98%20%EB%8F%99%EC%83%81%EC%9D%B4%EB%AA%BD_%ED%86%A0%EB%A1%A0_%EA%B8%B8%EA%B2%8C.mp3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_A그룹_정부 여행 쿠폰 뒤 민관의 샅바싸움_심층분석_기본.mp3": {
+      "name": "FGI업계_A그룹_정부 여행 쿠폰 뒤 민관의 샅바싸움_심층분석_기본.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_A그룹_정부 여행 쿠폰 뒤 민관의 샅바싸움_심층분석_기본.mp3",
+      "extension": ".mp3",
+      "size": 12908310,
+      "updatedAt": "2026-11-11T16:41:08.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_A%EA%B7%B8%EB%A3%B9_%EC%A0%95%EB%B6%80%20%EC%97%AC%ED%96%89%20%EC%BF%A0%ED%8F%B0%20%EB%92%A4%20%EB%AF%BC%EA%B4%80%EC%9D%98%20%EC%83%85%EB%B0%94%EC%8B%B8%EC%9B%80_%EC%8B%AC%EC%B8%B5%EB%B6%84%EC%84%9D_%EA%B8%B0%EB%B3%B8.mp3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_B그룹_공공 관광 AI 자동화냐 로컬 큐레이션이냐_토론_길게.mp3": {
+      "name": "FGI업계_B그룹_공공 관광 AI 자동화냐 로컬 큐레이션이냐_토론_길게.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_B그룹_공공 관광 AI 자동화냐 로컬 큐레이션이냐_토론_길게.mp3",
+      "extension": ".mp3",
+      "size": 4780182,
+      "updatedAt": "2026-11-11T17:17:08.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_B%EA%B7%B8%EB%A3%B9_%EA%B3%B5%EA%B3%B5%20%EA%B4%80%EA%B4%91%20AI%20%EC%9E%90%EB%8F%99%ED%99%94%EB%83%90%20%EB%A1%9C%EC%BB%AC%20%ED%81%90%EB%A0%88%EC%9D%B4%EC%85%98%EC%9D%B4%EB%83%90_%ED%86%A0%EB%A1%A0_%EA%B8%B8%EA%B2%8C.mp3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_B그룹_대한민국 구석구석 앱의 현실과 AI 생존법_심층분석_기본.mp3": {
+      "name": "FGI업계_B그룹_대한민국 구석구석 앱의 현실과 AI 생존법_심층분석_기본.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_B그룹_대한민국 구석구석 앱의 현실과 AI 생존법_심층분석_기본.mp3",
+      "extension": ".mp3",
+      "size": 10434966,
+      "updatedAt": "2026-11-11T16:49:56.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_B%EA%B7%B8%EB%A3%B9_%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD%20%EA%B5%AC%EC%84%9D%EA%B5%AC%EC%84%9D%20%EC%95%B1%EC%9D%98%20%ED%98%84%EC%8B%A4%EA%B3%BC%20AI%20%EC%83%9D%EC%A1%B4%EB%B2%95_%EC%8B%AC%EC%B8%B5%EB%B6%84%EC%84%9D_%EA%B8%B0%EB%B3%B8.mp3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_C그룹_공공 관광 앱 1위가 맥도날드인 이유_심층분석_기본.mp3": {
+      "name": "FGI업계_C그룹_공공 관광 앱 1위가 맥도날드인 이유_심층분석_기본.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_C그룹_공공 관광 앱 1위가 맥도날드인 이유_심층분석_기본.mp3",
+      "extension": ".mp3",
+      "size": 11559702,
+      "updatedAt": "2026-11-11T17:00:20.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_C%EA%B7%B8%EB%A3%B9_%EA%B3%B5%EA%B3%B5%20%EA%B4%80%EA%B4%91%20%EC%95%B1%201%EC%9C%84%EA%B0%80%20%EB%A7%A5%EB%8F%84%EB%82%A0%EB%93%9C%EC%9D%B8%20%EC%9D%B4%EC%9C%A0_%EC%8B%AC%EC%B8%B5%EB%B6%84%EC%84%9D_%EA%B8%B0%EB%B3%B8.mp3"
+    },
+    "50_FGI/FGI 업계/FGI현장진행/FGI업계_C그룹_공공 관광 앱 허브 구축인가 민간 지원인가_토론_길게.mp3": {
+      "name": "FGI업계_C그룹_공공 관광 앱 허브 구축인가 민간 지원인가_토론_길게.mp3",
+      "path": "50_FGI/FGI 업계/FGI현장진행/FGI업계_C그룹_공공 관광 앱 허브 구축인가 민간 지원인가_토론_길게.mp3",
+      "extension": ".mp3",
+      "size": 4773270,
+      "updatedAt": "2026-11-11T17:23:18.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/FGI%EC%97%85%EA%B3%84_C%EA%B7%B8%EB%A3%B9_%EA%B3%B5%EA%B3%B5%20%EA%B4%80%EA%B4%91%20%EC%95%B1%20%ED%97%88%EB%B8%8C%20%EA%B5%AC%EC%B6%95%EC%9D%B8%EA%B0%80%20%EB%AF%BC%EA%B0%84%20%EC%A7%80%EC%9B%90%EC%9D%B8%EA%B0%80_%ED%86%A0%EB%A1%A0_%EA%B8%B8%EA%B2%8C.mp3"
     }
   }
 }
