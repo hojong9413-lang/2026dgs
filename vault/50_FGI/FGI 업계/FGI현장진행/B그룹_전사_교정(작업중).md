@@ -1,7 +1,5 @@
 
-다글로 전사(1차 화자분리) -> 클로드 1차 교정 작업중
-
->  ※ 교정본: 문맥에 따라 수정한 부분은 <span style="color:#D93025;font-weight:bold">빨간색</span>, 녹취록 재확인이 필요한 부분은 <span style="color:#F29900;font-weight:bold">주황색</span>으로 표시했습니다.
+==🔴다글로 전사(1차 화자분리) -> 클로드 1차 교정 작업중==
 
 **빨간색으로 고친 주요 항목**
 
@@ -58,7 +56,8 @@
 - **수행사 녹취록:** [B그룹_녹취록.m4a](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/B%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a) ([R2 스트리밍/다운로드](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/B%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a))
 - **스튜디오 녹음본:** [투어리즘인사이트_FGI 녹음본_전문가 그룹B.MP3](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.MP3) ([R2 스트리밍/다운로드](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.MP3))
 - **스튜디오 영상녹화본:** [투어리즘인사이트_FGI 영상본_전문가 그룹B.mp4](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.mp4) ([R2 스트리밍/다운로드](https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%97%85%EA%B3%84/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%A0%84%EB%AC%B8%EA%B0%80%20%EA%B7%B8%EB%A3%B9B.mp4))
-- **원천 전사 파일:** `B그룹_전사.docx`
+- **원천 전사 파일:** `B그룹_전사.docx
+- **교정 범례**: <span style="color:#e03131">빨강 = 맥락 교정</span> / <span style="color:#f08c00">주황 = 추정 교정(녹음 확인 필요)</span>`
 
 ---
 
