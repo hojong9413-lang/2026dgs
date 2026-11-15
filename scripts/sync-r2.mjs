@@ -457,7 +457,13 @@ async function main() {
       .map((relPath) => `vault/${relPath}`),
     "",
   ];
-  fs.writeFileSync(vercelIgnorePath, vercelIgnoreLines.join("\n"), "utf-8");
+  const newVercelIgnoreContent = vercelIgnoreLines.join("\n");
+  const prevVercelIgnoreContent = fs.existsSync(vercelIgnorePath)
+    ? fs.readFileSync(vercelIgnorePath, "utf-8").replace(/\r\n/g, "\n")
+    : "";
+  if (newVercelIgnoreContent !== prevVercelIgnoreContent) {
+    fs.writeFileSync(vercelIgnorePath, newVercelIgnoreContent, "utf-8");
+  }
 
   console.log("\n✅ Cloudflare R2 동기화 완료!");
   console.log(`   - 신규/변경 업로드: ${uploadedCount}건`);
