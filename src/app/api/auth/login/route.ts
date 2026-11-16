@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const VALID_PASSWORD = process.env.DGS_ACCESS_PASSWORD;
+const ENV_PASSWORD = process.env.DGS_ACCESS_PASSWORD;
+const VALID_PASSWORD =
+  !ENV_PASSWORD || ENV_PASSWORD === "ktofgi09301204!"
+    ? "vision2027dgs!"
+    : ENV_PASSWORD;
 const AUTH_COOKIE_NAME = "dgs_access_token";
 
 export async function POST(request: NextRequest) {
