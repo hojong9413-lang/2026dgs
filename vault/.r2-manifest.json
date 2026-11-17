@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-17T01:11:03.018Z",
+  "updatedAt": "2026-11-17T05:32:15.952Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -478,9 +478,17 @@
       "name": "FGI_사용자그룹화면.zip",
       "path": "50_FGI/FGI 준비파일/FGI_사용자그룹화면.zip",
       "extension": ".zip",
+      "size": 13792696,
+      "updatedAt": "2026-11-17T05:31:24.417Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%A4%80%EB%B9%84%ED%8C%8C%EC%9D%BC/FGI_%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B7%B8%EB%A3%B9%ED%99%94%EB%A9%B4.zip"
+    },
+    "50_FGI/FGI 준비파일/FGI_사용자그룹화면_이전버전.zip": {
+      "name": "FGI_사용자그룹화면_이전버전.zip",
+      "path": "50_FGI/FGI 준비파일/FGI_사용자그룹화면_이전버전.zip",
+      "extension": ".zip",
       "size": 13800032,
       "updatedAt": "2026-11-15T13:26:06.756Z",
-      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%A4%80%EB%B9%84%ED%8C%8C%EC%9D%BC/FGI_%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B7%B8%EB%A3%B9%ED%99%94%EB%A9%B4.zip"
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%A4%80%EB%B9%84%ED%8C%8C%EC%9D%BC/FGI_%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B7%B8%EB%A3%B9%ED%99%94%EB%A9%B4_%EC%9D%B4%EC%A0%84%EB%B2%84%EC%A0%84.zip"
     }
   }
 }
