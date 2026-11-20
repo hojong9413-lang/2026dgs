@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-20T10:40:27.826Z",
+  "updatedAt": "2026-11-20T11:29:10.985Z",
   "publicUrl": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev",
   "files": {
     "03_회의록/착수보고회/01_착수보고발표_녹취.m4a": {
@@ -537,6 +537,54 @@
       "size": 716627874,
       "updatedAt": "2026-11-19T12:17:15.991Z",
       "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%9D%BC%EB%B0%98%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B7%B8%EB%A3%B92.mp4"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/3그룹_녹취록.m4a": {
+      "name": "3그룹_녹취록.m4a",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/3그룹_녹취록.m4a",
+      "extension": ".m4a",
+      "size": 114651367,
+      "updatedAt": "2026-11-20T02:15:34.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/3%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/4그룹_녹취록.m4a": {
+      "name": "4그룹_녹취록.m4a",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/4그룹_녹취록.m4a",
+      "extension": ".m4a",
+      "size": 122999269,
+      "updatedAt": "2026-11-20T05:21:12.000Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/4%EA%B7%B8%EB%A3%B9_%EB%85%B9%EC%B7%A8%EB%A1%9D.m4a"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 녹음본_일반 사용자 그룹3.MP3": {
+      "name": "투어리즘인사이트_FGI 녹음본_일반 사용자 그룹3.MP3",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 녹음본_일반 사용자 그룹3.MP3",
+      "extension": ".mp3",
+      "size": 125347339,
+      "updatedAt": "2026-11-20T10:53:38.027Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%9D%BC%EB%B0%98%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B7%B8%EB%A3%B93.MP3"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 녹음본_일반 사용자 그룹4.MP3": {
+      "name": "투어리즘인사이트_FGI 녹음본_일반 사용자 그룹4.MP3",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 녹음본_일반 사용자 그룹4.MP3",
+      "extension": ".mp3",
+      "size": 126600590,
+      "updatedAt": "2026-11-20T10:53:41.487Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EB%85%B9%EC%9D%8C%EB%B3%B8_%EC%9D%BC%EB%B0%98%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B7%B8%EB%A3%B94.MP3"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 영상본_일반 사용자 그룹1.mp4": {
+      "name": "투어리즘인사이트_FGI 영상본_일반 사용자 그룹1.mp4",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 영상본_일반 사용자 그룹1.mp4",
+      "extension": ".mp4",
+      "size": 702429934,
+      "updatedAt": "2026-11-20T10:54:05.119Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%9D%BC%EB%B0%98%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B7%B8%EB%A3%B91.mp4"
+    },
+    "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 영상본_일반 사용자 그룹3.mp4": {
+      "name": "투어리즘인사이트_FGI 영상본_일반 사용자 그룹3.mp4",
+      "path": "50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 영상본_일반 사용자 그룹3.mp4",
+      "extension": ".mp4",
+      "size": 657504741,
+      "updatedAt": "2026-11-20T10:54:19.293Z",
+      "r2Url": "https://pub-a68ee219ff734434855a3a368f617eb2.r2.dev/50_FGI/FGI%20%EC%82%AC%EC%9A%A9%EC%9E%90/FGI%ED%98%84%EC%9E%A5%EC%A7%84%ED%96%89/%ED%88%AC%EC%96%B4%EB%A6%AC%EC%A6%98%EC%9D%B8%EC%82%AC%EC%9D%B4%ED%8A%B8_FGI%20%EC%98%81%EC%83%81%EB%B3%B8_%EC%9D%BC%EB%B0%98%20%EC%82%AC%EC%9A%A9%EC%9E%90%20%EA%B7%B8%EB%A3%B93.mp4"
     }
   }
 }
