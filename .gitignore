@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+~$*
 
 # debug
 npm-debug.log*
@@ -81,3 +82,4 @@ vault/50_FGI/FGI 사용자/FGI현장진행/투어리즘인사이트_FGI 영상�
 vault/50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹A_비식별화.mp4
 vault/50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹B_비식별화.mp4
 vault/50_FGI/FGI 업계/FGI현장진행/투어리즘인사이트_FGI 영상본_전문가 그룹C_비식별화.mp4
+vault/03_회의록/FGI업계_질문서_확정미팅/FGI업계_질문리스트_확정회의_녹취록_20261104.m4a
